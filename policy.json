@@ -31,6 +31,6 @@
     "github_repo", "githubRepo"
   ],
   "terminal_allow": [
-    "^(?:cd\\s+\\S+\\s*&&\\s*)?python3?\\s+tools/gov\\.py\\s+(?:declare|load|validate|finish|status|steps)(?:\\s[^;&|<>`$]*)?$"
+    "^(?:cd\\s+\\S+\\s*&&\\s*)?python3?\\s+tools/gov\\.py\\s+(?:declare|load|validate|finish|status|steps)(?:\\s+(?:\"[^\"$`]*\"|'[^']*'|[^\\s\"'`;&|<>$]+))*\\s*$"
   ]
 }

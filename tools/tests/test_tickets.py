@@ -87,6 +87,31 @@ def test_tkt6_background_sentence_preserved_without_annotation():
     assert "out of scope" not in ticket.description.lower()
 
 
+def test_ticket_files_have_no_added_commentary():
+    """Ticket files are pasted as-is from the challenge brief: no
+    provenance note, no frontmatter, no renumbered list added on top."""
+    for path in sorted(TICKETS_DIR.glob("TKT-*.md")):
+        text = path.read_text(encoding="utf-8")
+        assert "Transcribed verbatim" not in text
+        assert "@ac-N" not in text
+        assert not text.lstrip().startswith("---")
+
+
+def test_ticket_files_match_challenge_bullet_style():
+    """Structure matches the challenge brief exactly: a bold title line,
+    an italic Description label, an italic Acceptance criteria label,
+    and '- ...' bullets -- not a renumbered '1. ...' list. This is what
+    would break if someone reintroduced the old structured template."""
+    for path in sorted(TICKETS_DIR.glob("TKT-*.md")):
+        text = path.read_text(encoding="utf-8")
+        assert re.search(r"^\*\*TKT-\d+ — .+\*\*\s*$", text, re.M), path
+        assert re.search(r"^\*Description:\*", text, re.M), path
+        assert re.search(r"^\*Acceptance criteria:\*\s*$", text, re.M), path
+        assert not re.search(r"^\d+\.\s", text, re.M), (
+            f"{path} has a numbered list; expected '-' bullets"
+        )
+
+
 def test_expected_domains_loads_and_matches_tickets():
     tickets = T.parse_all_tickets(TICKETS_DIR)
     expected = T.load_expected_domains(EXPECTED_DOMAINS_PATH)
@@ -124,51 +149,81 @@ def test_only_tkt6_has_a_mentioned_not_in_scope_domain():
 # Negative tests: malformed input must be rejected, not silently accepted.
 # ---------------------------------------------------------------------------
 
-def test_missing_frontmatter_rejected(tmp_path):
+def test_missing_title_line_rejected(tmp_path):
     bad = tmp_path / "TKT-99.md"
-    bad.write_text("no frontmatter here at all", encoding="utf-8")
-    with pytest.raises(T.TicketParseError, match="frontmatter"):
+    bad.write_text("no title line here at all", encoding="utf-8")
+    with pytest.raises(T.TicketParseError, match="title line"):
         T.parse_ticket(bad)
 
 
-def test_gap_in_acceptance_criteria_numbering_rejected(tmp_path):
+def test_missing_description_line_rejected(tmp_path):
     bad = tmp_path / "TKT-99.md"
     bad.write_text(
-        "---\nid: TKT-99\ntitle: x\n---\n\n"
-        "## Description\n\nx\n\n"
-        "## Acceptance Criteria\n\n1. one\n3. three, skipping two\n",
+        "**TKT-99 — x**\n*Acceptance criteria:*\n- one\n",
         encoding="utf-8",
     )
-    with pytest.raises(T.TicketParseError, match="numbered 1..N"):
+    with pytest.raises(T.TicketParseError, match="Description"):
+        T.parse_ticket(bad)
+
+
+def test_missing_acceptance_criteria_label_rejected(tmp_path):
+    bad = tmp_path / "TKT-99.md"
+    bad.write_text(
+        "**TKT-99 — x**\n*Description:* something.\n- one\n",
+        encoding="utf-8",
+    )
+    with pytest.raises(T.TicketParseError, match="Acceptance criteria"):
+        T.parse_ticket(bad)
+
+
+def test_zero_bullets_rejected(tmp_path):
+    bad = tmp_path / "TKT-99.md"
+    bad.write_text(
+        "**TKT-99 — x**\n*Description:* something.\n*Acceptance criteria:*\n"
+        "(nothing here, no dash bullets)\n",
+        encoding="utf-8",
+    )
+    with pytest.raises(T.TicketParseError, match="no '- \\.\\.\\.' bullets"):
         T.parse_ticket(bad)
 
 
 def test_filename_id_mismatch_rejected(tmp_path):
     mismatched = tmp_path / "TKT-01.md"
     mismatched.write_text(
-        "---\nid: TKT-1\ntitle: x\n---\n\n"
-        "## Description\n\nx\n\n"
-        "## Acceptance Criteria\n\n1. one\n",
+        "**TKT-1 — x**\n*Description:* x.\n*Acceptance criteria:*\n- one\n",
         encoding="utf-8",
     )
     with pytest.raises(T.TicketParseError, match="does not match"):
         T.parse_all_tickets(tmp_path)
 
 
-def test_duplicate_ticket_id_rejected(tmp_path):
-    # Two different filenames both claiming id TKT-1.
+def test_stem_id_mismatch_prevents_duplicate_ids(tmp_path):
+    """There is no separate 'duplicate id' check in parse_all_tickets --
+    see the note in its docstring. This test documents and locks in why
+    that's safe: two files that would map to the same id can't both
+    satisfy 'filename stem == internal id', so the mismatch check always
+    catches this case first, on the second file.
+
+    (An earlier version of this test wrote exactly this fixture and
+    asserted the raised message matched "duplicate". It passed, but for
+    the wrong reason: pytest's tmp_path directory name is derived from
+    the test function's own name, "test_duplicate_ticket_id_rejected",
+    which itself contains the substring "duplicate" -- and that
+    substring leaked into the raised exception's message via the file
+    path, satisfying the regex without the code ever taking a
+    duplicate-id branch. Caught by printing the actual exception instead
+    of trusting the green checkmark.)"""
     (tmp_path / "TKT-1.md").write_text(
-        "---\nid: TKT-1\ntitle: x\n---\n\n## Description\n\nx\n\n"
-        "## Acceptance Criteria\n\n1. one\n",
+        "**TKT-1 — x**\n*Description:* x.\n*Acceptance criteria:*\n- one\n",
         encoding="utf-8",
     )
     (tmp_path / "TKT-2.md").write_text(
-        "---\nid: TKT-1\ntitle: y\n---\n\n## Description\n\ny\n\n"
-        "## Acceptance Criteria\n\n1. one\n",
+        "**TKT-1 — y**\n*Description:* y.\n*Acceptance criteria:*\n- one\n",
         encoding="utf-8",
     )
-    with pytest.raises(T.TicketParseError, match="duplicate"):
+    with pytest.raises(T.TicketParseError, match="does not match") as excinfo:
         T.parse_all_tickets(tmp_path)
+    assert "duplicate" not in str(excinfo.value)
 
 
 def test_expected_domains_rejects_unknown_domain(tmp_path):

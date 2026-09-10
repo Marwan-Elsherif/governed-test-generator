@@ -6,6 +6,21 @@ fail loudly here, at authoring time, rather than silently confuse the
 agent or the validator later. A run's evidence is only as trustworthy as
 the fixed template it was built on.
 
+Ticket files are an exact, unannotated copy of each ticket as it appears
+in the challenge brief:
+
+    **TKT-n — Title**
+    *Description:* ...
+    *Acceptance criteria:*
+    - ...
+    - ...
+
+No frontmatter, no renumbered list, no added commentary. Acceptance
+criteria are numbered by their position in the file (the first bullet
+after the label is AC1, and so on) rather than by digits typed into the
+text, precisely so the file content itself never has to differ from the
+source to support `@ac-N` traceability later.
+
 Note on eval/expected_domains.json: this file exists for OUR audit
 tooling only. The agent must never see it -- the governance hook denies
 reads under eval/** during an active run (see docs/PLAN.md SS2.4/SS2.6).
@@ -20,9 +35,10 @@ from dataclasses import dataclass, field
 from pathlib import Path
 
 TICKET_ID_RE = re.compile(r"^TKT-\d+$")
-FRONTMATTER_RE = re.compile(r"\A---\n(.*?)\n---\n", re.S)
-SECTION_RE = re.compile(r"^##\s+(.+?)\s*$", re.M)
-AC_ITEM_RE = re.compile(r"^\s*(\d+)\.\s+(\S.*?)\s*$", re.M)
+TITLE_LINE_RE = re.compile(r"^\*\*(TKT-\d+)\s+—\s+(.+?)\*\*\s*$", re.M)
+DESCRIPTION_RE = re.compile(r"^\*Description:\*\s+(.+?)\s*$", re.M)
+AC_LABEL_RE = re.compile(r"^\*Acceptance criteria:\*\s*$", re.M)
+AC_BULLET_RE = re.compile(r"^-\s+(.+?)\s*$", re.M)
 
 VALID_DOMAINS = ("ui", "api", "db")
 EXPECTED_DOMAINS_SCHEMA_VERSION = 1
@@ -57,82 +73,42 @@ class ExpectedDomains:
     mentioned_not_in_scope: tuple[str, ...] = field(default_factory=tuple)
 
 
-def _parse_frontmatter(text: str, path: Path) -> tuple[dict[str, str], str]:
-    m = FRONTMATTER_RE.match(text)
-    if not m:
-        raise TicketParseError(f"{path}: missing '---' frontmatter block at top of file")
-    fm: dict[str, str] = {}
-    for line in m.group(1).splitlines():
-        if not line.strip():
-            continue
-        if ":" not in line:
-            raise TicketParseError(f"{path}: malformed frontmatter line: {line!r}")
-        key, _, value = line.partition(":")
-        fm[key.strip()] = value.strip()
-    return fm, text[m.end():]
-
-
-def _parse_sections(body: str, path: Path) -> dict[str, str]:
-    headers = list(SECTION_RE.finditer(body))
-    if not headers:
-        raise TicketParseError(f"{path}: no '## ' section headers found")
-    sections: dict[str, str] = {}
-    for i, h in enumerate(headers):
-        start = h.end()
-        end = headers[i + 1].start() if i + 1 < len(headers) else len(body)
-        name = h.group(1).strip()
-        if name in sections:
-            raise TicketParseError(f"{path}: duplicate '## {name}' section")
-        sections[name] = body[start:end].strip()
-    return sections
-
-
-def _parse_acceptance_criteria(block: str, path: Path) -> tuple[str, ...]:
-    items = AC_ITEM_RE.findall(block)
-    if not items:
-        raise TicketParseError(
-            f"{path}: 'Acceptance Criteria' section has no numbered items "
-            "(expected lines like '1. ...')"
-        )
-    numbers = [int(n) for n, _ in items]
-    expected = list(range(1, len(numbers) + 1))
-    if numbers != expected:
-        raise TicketParseError(
-            f"{path}: acceptance criteria must be numbered 1..N with no gaps "
-            f"or repeats; found {numbers}, expected {expected}"
-        )
-    return tuple(text for _, text in items)
-
-
 def parse_ticket(path: Path) -> Ticket:
-    """Parse one tickets/TKT-n.md file. Raises TicketParseError on any
-    deviation from the fixed template -- there is no lenient fallback,
-    because a silently-misparsed ticket would poison everything built on
-    top of it (classification, AC-coverage checks, the audit record)."""
+    """Parse one tickets/TKT-n.md file in the challenge brief's own
+    format (see module docstring). Raises TicketParseError on any
+    deviation -- there is no lenient fallback, because a silently
+    misparsed ticket would poison everything built on top of it
+    (classification, AC-coverage checks, the audit record)."""
     text = path.read_text(encoding="utf-8")
-    fm, body = _parse_frontmatter(text, path)
 
-    for required in ("id", "title"):
-        if not fm.get(required):
-            raise TicketParseError(f"{path}: frontmatter missing '{required}'")
+    title_match = TITLE_LINE_RE.search(text)
+    if not title_match:
+        raise TicketParseError(
+            f"{path}: missing title line, expected '**TKT-n — Title**'"
+        )
+    ticket_id, title = title_match.group(1), title_match.group(2).strip()
 
-    if not TICKET_ID_RE.match(fm["id"]):
-        raise TicketParseError(f"{path}: id {fm['id']!r} does not match 'TKT-<n>'")
+    desc_match = DESCRIPTION_RE.search(text)
+    if not desc_match:
+        raise TicketParseError(f"{path}: missing '*Description:* ...' line")
+    description = desc_match.group(1).strip()
 
-    sections = _parse_sections(body, path)
+    ac_label_match = AC_LABEL_RE.search(text)
+    if not ac_label_match:
+        raise TicketParseError(
+            f"{path}: missing '*Acceptance criteria:*' label line"
+        )
 
-    description = sections.get("Description", "").strip()
-    if not description:
-        raise TicketParseError(f"{path}: 'Description' section is missing or empty")
-
-    ac_block = sections.get("Acceptance Criteria", "")
-    if not ac_block:
-        raise TicketParseError(f"{path}: 'Acceptance Criteria' section is missing or empty")
-    acs = _parse_acceptance_criteria(ac_block, path)
+    bullets_text = text[ac_label_match.end():]
+    acs = tuple(m.group(1).strip() for m in AC_BULLET_RE.finditer(bullets_text))
+    if not acs:
+        raise TicketParseError(
+            f"{path}: no '- ...' bullets found after '*Acceptance criteria:*'"
+        )
 
     return Ticket(
-        id=fm["id"],
-        title=fm["title"],
+        id=ticket_id,
+        title=title,
         description=description,
         acceptance_criteria=acs,
         path=path,
@@ -141,16 +117,27 @@ def parse_ticket(path: Path) -> Ticket:
 
 def parse_all_tickets(tickets_dir: Path) -> dict[str, Ticket]:
     """Parse every TKT-*.md in a directory. Fails loudly on the first bad
-    file, on any id/filename mismatch, or on a duplicate id."""
+    file, or on any id/filename mismatch.
+
+    There is deliberately no separate "duplicate id" check: enforcing
+    ``path.stem == ticket.id`` per file already makes a cross-file
+    duplicate impossible to construct, since glob() cannot return two
+    distinct paths with the same stem and suffix in one directory. An
+    earlier version of this function carried a dead duplicate-id branch,
+    guarded by a test that happened to pass for the wrong reason (the
+    word "duplicate" leaked into the error message via pytest's tmp_path
+    directory name, which is derived from the test's own function name)
+    -- caught only by actually inspecting the raised message, not by the
+    green checkmark. Left here as a note because it is exactly the kind
+    of mistake this tool exists to make less likely elsewhere.
+    """
     result: dict[str, Ticket] = {}
     for p in sorted(tickets_dir.glob("TKT-*.md")):
         t = parse_ticket(p)
         if p.stem != t.id:
             raise TicketParseError(
-                f"{p}: filename stem {p.stem!r} does not match frontmatter id {t.id!r}"
+                f"{p}: filename stem {p.stem!r} does not match title-line id {t.id!r}"
             )
-        if t.id in result:
-            raise TicketParseError(f"{p}: duplicate ticket id {t.id!r}")
         result[t.id] = t
     return result
 

@@ -276,3 +276,61 @@ def test_annotate_never_recomputes_a_finished_runs_facts():
         assert after["notes"] == ["reviewed"]
         md = (run_dir / "audit.md").read_text()
         assert "Auto (GPT-5 mini)" in md and "PASS" in md
+
+
+def test_client_info_is_backfilled_when_the_stop_hook_attaches_the_transcript():
+    """Reproduces the real ordering seen live: the agent calls `finish` via
+    the terminal mid-turn, and only once the whole chat response ends does
+    VS Code fire Stop with transcript_path. So `finish` always builds the
+    audit with no transcript on disk yet -- client info must be filled in
+    afterward, automatically, when Stop attaches the transcript, not left
+    for someone to remember a follow-up command."""
+    with tempfile.TemporaryDirectory(prefix="gov-client-backfill-test-") as tmp:
+        import re
+        import simulate_run as S
+
+        root = S.make_copy(Path(tmp) / "repo")
+        gov = [sys.executable, str(root / "tools" / "gov.py")]
+
+        def cli(*args, input=None):
+            return subprocess.run(gov + list(args), cwd=root, capture_output=True,
+                                  text=True, input=input)
+
+        def hook(event, **fields):
+            payload = {"hook_event_name": event, "session_id": "s1", "cwd": str(root),
+                      "timestamp": "2026-01-01T00:00:00Z", **fields}
+            return cli("hook", input=json.dumps(payload))
+
+        hook("UserPromptSubmit", prompt="/run-ticket TKT-2")
+        out = cli("declare", "--ticket", "TKT-2", "--domains", "api",
+                  "--rationale", "r", "--evidence", "e").stdout
+        fp = re.search(r"fingerprint: ([0-9a-f]{8})", out).group(1)
+        rel = "features/api/cart_total_get.feature"
+        (root / rel).write_text(S.GOOD_FEATURE.format(
+            header=f"# gov: ticket=TKT-2 domain=api conventions=api@{fp}"), encoding="utf-8")
+        assert cli("validate").returncode == 0
+        assert cli("finish").returncode == 0
+
+        run_dir = next(d for d in (root / "runs").iterdir() if d.is_dir())
+        right_after_finish = json.loads((run_dir / "audit.json").read_text())
+        assert right_after_finish["session"]["client"] is None, (
+            "sanity check: finish genuinely has no transcript yet")
+
+        # The chat turn ends; VS Code fires Stop with the transcript it has
+        # been writing all along, only now available on disk.
+        transcript = root / "fake_transcript.jsonl"
+        transcript.write_text(json.dumps({
+            "type": "session.start",
+            "data": {"sessionId": "s1", "producer": "copilot-agent",
+                     "copilotVersion": "9.9.9", "vscodeVersion": "1.999.0"},
+        }) + "\n", encoding="utf-8")
+        assert hook("Stop", stop_hook_active=False,
+                    transcript_path=str(transcript)).returncode == 0
+
+        after_stop = json.loads((run_dir / "audit.json").read_text())
+        assert after_stop["session"]["client"] == {
+            "producer": "copilot-agent", "copilot_version": "9.9.9", "vscode_version": "1.999.0",
+        }
+        assert after_stop["verdict"] == right_after_finish["verdict"], (
+            "backfilling client info must not touch the observed verdict")
+        assert "9.9.9" in (run_dir / "audit.md").read_text()

@@ -277,8 +277,33 @@ def _attach_transcript(run: runstate.Run | None, data: dict) -> None:
         try:
             shutil.copyfile(p, run.root / f"transcript.raw{p.suffix or '.txt'}")
             run.log("transcript_attached", source=str(p))
+            _backfill_client_info(run)
         except OSError as exc:
             run.log("warning", message=f"could not copy transcript: {exc}")
+
+
+def _backfill_client_info(run: runstate.Run) -> None:
+    """The agent calls `finish` mid-turn, before the chat response ends; the
+    Stop hook that attaches the transcript fires only after. So the client
+    (Copilot/VS Code version) is never available when finish builds the
+    audit -- discovered because TKT-2's audit had it populated only because
+    an unrelated `annotate` call happened to run later, and TKT-3's did not,
+    since nothing had touched it yet. Patching it in here, automatically,
+    the moment the transcript lands, means every run's audit ends up
+    complete without anyone having to remember a follow-up command."""
+    audit_path = run.root / "audit.json"
+    if not audit_path.exists():
+        return
+    try:
+        record = json.loads(audit_path.read_text(encoding="utf-8"))
+        client = A._client_info(run)
+        if client and record.get("session", {}).get("client") != client:
+            record["session"]["client"] = client
+            audit_path.write_text(json.dumps(record, indent=2, sort_keys=True) + "\n",
+                                  encoding="utf-8")
+            (run.root / "audit.md").write_text(A.render_markdown(record), encoding="utf-8")
+    except (OSError, ValueError, KeyError) as exc:
+        run.log("warning", message=f"could not backfill client info: {exc}")
 
 
 # ---------------------------------------------------------------------------
@@ -481,12 +506,12 @@ def annotate(args) -> int:
         run.manifest.setdefault("notes", []).append(note)
         run.log("annotate", note=note)
     run.save()
+    _backfill_client_info(run)
     audit_path = run.root / "audit.json"
     if audit_path.exists():
         record = json.loads(audit_path.read_text(encoding="utf-8"))
         if args.model:
             record["session"]["model"] = args.model
-        record["session"]["client"] = A._client_info(run)
         record["notes"] = list(run.manifest.get("notes", []))
         audit_path.write_text(json.dumps(record, indent=2, sort_keys=True) + "\n",
                               encoding="utf-8")

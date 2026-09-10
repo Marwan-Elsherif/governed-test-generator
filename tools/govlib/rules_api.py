@@ -1,4 +1,5 @@
-"""api rules API-01..API-11, and the api notion of target state for C-07.
+"""api rules API-01..API-11 and API-13, and the api notion of target state
+for C-07.
 
 API-12 is the forbidden-term list; it is enforced by C-05.
 """
@@ -8,7 +9,7 @@ import re
 from typing import Iterable
 
 from govlib import conventions as C
-from govlib.rules import FAIL, Context, Finding, Rule
+from govlib.rules import AC_TAG_RE, FAIL, WARN, Context, Finding, Rule
 
 TITLE_RE = re.compile(r"^API (GET|POST|PUT|PATCH|DELETE|HEAD|OPTIONS) (/\S*)$")
 METHODS = ("get", "post", "put", "patch", "delete", "head", "options")
@@ -241,6 +242,52 @@ def api11_fixtures(ctx: Context) -> Iterable[Finding]:
                           f"{C.RESERVED_UUID_PREFIX}XXXXXXXXXXXX")
 
 
+HTTP_METHOD_WORD_RE = re.compile(r"\b(GET|POST|PUT|PATCH|DELETE)\b")
+
+
+def api13_ac_method_match(ctx: Context) -> Iterable[Finding]:
+    """A @ac-<n> tag proves a scenario is *linked* to a criterion (C-06); it
+    proves nothing about whether the scenario actually tests what that
+    criterion says. Found live: a ticket whose AC-2 read "a subsequent GET
+    ... returns 404" was covered by a scenario that sent a DELETE. C-06 was
+    satisfied (the tag was there) and the file validated ALL PASS; only
+    reading the ticket text next to the scenario caught the mismatch.
+
+    This checks one narrow, cheap signal -- when the criterion names an HTTP
+    method, does the covering scenario's own request use that method -- as a
+    heuristic, not a proof of correctness in general. WARN, not FAIL: it is
+    one word matched against one word, not an understanding of what the
+    criterion means. Uppercase-only match (GET, not "get the response") to
+    keep false positives rare.
+    """
+    if ctx.ticket is None:
+        return
+    for sc in ctx.scenarios:
+        methods = [
+            m.group(1) for step in sc.steps_of("When")
+            if (m := REQUEST_STEP_RE.match(step.text))
+        ]
+        if not methods:
+            continue
+        for tag in sc.tags:
+            ac_match = AC_TAG_RE.match(tag)
+            if not ac_match or ac_match.group(1) == "extra":
+                continue
+            n = int(ac_match.group(1))
+            if not (1 <= n <= ctx.ticket.ac_count):
+                continue
+            ac_text = ctx.ticket.ac(n)
+            named = set(HTTP_METHOD_WORD_RE.findall(ac_text))
+            if named and methods[0] not in named:
+                yield Finding(
+                    "API-13", WARN,
+                    f"scenario {sc.name!r} is tagged @ac-{n}, whose text names "
+                    f"{'/'.join(sorted(named))} but the scenario sends {methods[0]}: "
+                    f"{ac_text!r} -- check this scenario actually tests that criterion",
+                    sc.line,
+                )
+
+
 def target_state(ctx: Context) -> tuple[bool, list[str]]:
     """C-07 for api: the specification is openapi.yaml, the thing under
     test is the title's method and path."""
@@ -265,4 +312,5 @@ RULES: tuple[tuple[str, Rule], ...] = (
     ("API-09", api09_money),
     ("API-10", api10_timing),
     ("API-11", api11_fixtures),
+    ("API-13", api13_ac_method_match),
 )

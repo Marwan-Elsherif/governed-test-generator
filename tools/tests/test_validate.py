@@ -463,6 +463,60 @@ def test_api11_flags_a_malformed_fixture_step():
     assert "API-11" in failed_rules(report)
 
 
+API13_FEATURE = """@api @delete @exemplar
+Feature: API DELETE /cart/{id}
+
+  Background:
+    Given the API is available
+
+  @status-404 @ac-1
+  Scenario: returns 404 when the cart has already been deleted
+    When I send a DELETE request to "/cart/00000000-0000-4000-8000-000000000202/total"
+    Then the response status is 404
+    And the error code is "CART_NOT_FOUND"
+"""
+
+
+def synthetic_ticket(*acceptance_criteria: str):
+    from govlib.tickets import Ticket
+    return Ticket(id="TKT-999", title="t", description="d",
+                 acceptance_criteria=acceptance_criteria, path=ROOT)
+
+
+def test_api13_warns_on_a_real_method_mismatch():
+    """Reproduces exactly what a live run produced: a criterion whose text
+    names GET, covered (per its @ac-1 tag) by a scenario that sends DELETE.
+    C-06 (the tag exists) and every other rule passed; only this catches
+    the mismatch, and only as a warning, not a failure."""
+    ticket = synthetic_ticket("A subsequent `GET /cart/{id}` returns 404.")
+    report = run("api", API13_FEATURE, ticket=ticket)
+    warning = next((f for f in report.warnings if f.rule == "API-13"), None)
+    assert warning is not None, [str(f) for f in report.findings]
+    assert "GET" in warning.message and "DELETE" in warning.message
+    assert "API-13" not in failed_rules(report), "a mismatch is a warning, never a failure"
+
+
+def test_api13_silent_when_the_method_matches():
+    ticket = synthetic_ticket("`DELETE` on an unknown id returns 404.")
+    report = run("api", API13_FEATURE, ticket=ticket)
+    assert not any(f.rule == "API-13" for f in report.findings)
+
+
+def test_api13_silent_when_the_criterion_names_no_method():
+    """No signal to compare against; must not guess or false-positive."""
+    ticket = synthetic_ticket("The cart is gone afterwards.")
+    report = run("api", API13_FEATURE, ticket=ticket)
+    assert not any(f.rule == "API-13" for f in report.findings)
+
+
+def test_api13_is_case_sensitive_to_avoid_ordinary_english_false_positives():
+    """'get' as an ordinary word ("to get a response") must not be read as
+    the HTTP method GET."""
+    ticket = synthetic_ticket("The client should get a 404 response back.")
+    report = run("api", API13_FEATURE, ticket=ticket)
+    assert not any(f.rule == "API-13" for f in report.findings)
+
+
 # ---------------------------------------------------------------------------
 # db rules.
 # ---------------------------------------------------------------------------

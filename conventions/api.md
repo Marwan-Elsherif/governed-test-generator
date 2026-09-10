@@ -58,6 +58,14 @@ The error envelope, the code catalogue and the 400/404/422 rule are in
   `i see`, `i should see`, `the page shows`, `table`, `row`, `rows`, `column`,
   `insert into`, `select *`, `constraint`, `database`, `schema`. The bare word
   page is not forbidden: pagination needs it.
+- **API-13 Acceptance-criterion method match (WARN).** A `@ac-<n>` tag records
+  that a scenario *covers* a criterion; it does not by itself prove the
+  scenario tests what the criterion says. When a ticket's criterion names an
+  HTTP method (`GET`, `POST`, `PUT`, `PATCH`, `DELETE`), a scenario tagged for
+  that criterion should send a request with that method. A mismatch is a
+  warning, not a failure -- it is a heuristic on one signal (the method word),
+  not proof the scenario is wrong -- but it is exactly the kind of gap C-06's
+  tag check cannot see on its own, and worth a second look before finishing.
 
 ## Target state (C-07 for api)
 

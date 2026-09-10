@@ -141,8 +141,20 @@ def _referenced(ctx: Context) -> tuple[list[tuple[str, int]], list[tuple[str, in
     for step in steps:
         for name in PAGE_REF_RE.findall(step.text):
             pages.append((name, step.line))
-        for name in ELEMENT_REF_RE.findall(step.text):
-            elements.append((name, step.line))
+        # Elements are only extracted from When steps. UI-06 defines
+        # `the "<Element>"` as how an *interaction* names its target; UI-07's
+        # fixed Then-step catalogue never takes an element as its direct
+        # subject (it takes pages, free "text", or a URL literal). Found live:
+        # a Then step reading 'products in the "Home & Garden" category'
+        # matched the same `the "..."` shape by coincidence of English prose,
+        # and got reported as a new page element needing @spec-pending, when
+        # it names a filter *value*, not a control. Scoping extraction to
+        # When steps removes this without narrowing real element detection,
+        # since a genuine element reference has nowhere else to legitimately
+        # appear in this domain's fixed grammar.
+        if step.effective == "When":
+            for name in ELEMENT_REF_RE.findall(step.text):
+                elements.append((name, step.line))
     return pages, elements
 
 

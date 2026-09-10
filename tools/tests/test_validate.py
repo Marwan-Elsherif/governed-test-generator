@@ -392,6 +392,54 @@ def test_ui08_still_checks_page_names_when_spec_pending():
     assert "UI-08" in failed_rules(report)
 
 
+UI_THEN_PROSE_FALSE_POSITIVE = """@ui @exemplar @spec-pending
+Feature: UI - Product Listing - Search filters
+  As a shopper
+  I want to filter products
+  So that I can find what I need
+
+  Background:
+    Given I am on the "Product Listing" page
+
+  @happy-path @smoke @ac-1
+  Scenario: Shopper filters by category
+    When I select "Home & Garden" in the "Category filter"
+    Then I should see only products in the "Home & Garden" category
+"""
+
+
+def _ui_context(text: str):
+    from govlib import gherkin
+    from govlib.rules import Context
+    return Context(
+        path=EXEMPLAR["ui"], repo_root=ROOT, domain="ui",
+        parsed=gherkin.parse(EXEMPLAR["ui"], text), shop=C.load_shop(ROOT),
+    )
+
+
+def test_ui_then_step_prose_is_not_read_as_an_element_reference():
+    """Reproduces exactly what a live run produced: a Then step reading
+    'products in the "Home & Garden" category' matches the same the
+    "..." shape as a real element reference by coincidence of English
+    prose. "Home & Garden" is a filter value asserted in the result, not
+    a control -- it must not be reported as a page element (registered
+    or new), and a real When-step element reference on the same feature
+    must still be detected."""
+    from govlib import rules_ui
+    ctx = _ui_context(UI_THEN_PROSE_FALSE_POSITIVE)
+
+    _pages, elements = rules_ui._referenced(ctx)
+    names = [n for n, _line in elements]
+    assert names == ["Category filter"], names
+
+    _expected, new_objects = rules_ui.target_state(ctx)
+    assert not any("Home & Garden" in n for n in new_objects), new_objects
+    assert any("Category filter" in n for n in new_objects), new_objects
+
+    report = run("ui", UI_THEN_PROSE_FALSE_POSITIVE)
+    assert "UI-08" not in failed_rules(report)
+
+
 # ---------------------------------------------------------------------------
 # api rules.
 # ---------------------------------------------------------------------------

@@ -17,6 +17,7 @@ from pathlib import Path
 
 import pytest
 
+from govlib import conventions as GC
 from govlib import shopspec as S
 
 REPO_ROOT = Path(__file__).resolve().parents[2]
@@ -183,17 +184,24 @@ def test_exemplar_uses_words_the_other_domains_forbid(domain):
         assert hits, f"{domain} exemplar contains nothing {other} forbids; lexicons not discriminative"
 
 
-def test_forbidden_lists_do_not_ban_a_domains_own_required_vocabulary():
-    """Words a domain's own rules require must not appear on its ban list."""
-    required = {
-        "ui": ["click", "I should see", "the page should not reload"],
-        "api": ["response status", "request", "error code"],
-        "db": ["table", "constraint", "migration", "index", "insert into"],
-    }
-    for domain, words in required.items():
-        banned = [t.lower() for t in forbidden_terms(domain)]
-        for w in words:
-            assert not any(contains_term(w, b) for b in banned), f"{domain} bans its own word {w!r}"
+@pytest.mark.parametrize("domain", DOMAINS)
+def test_forbidden_lists_do_not_ban_a_domains_own_required_vocabulary(domain):
+    """Derived from the documents rather than a hand-written list.
+
+    An earlier version of this test hardcoded a few words per domain and
+    so missed a real contradiction: `select` was both a required UI-06
+    interaction verb and a banned UI-09 term, which would have failed
+    every ui feature that used it. Two more of the same kind followed.
+    This version takes every backticked phrase on a domain's own rule
+    lines, which is its required vocabulary, and asserts none of them
+    contains a term the same document bans."""
+    banned = forbidden_terms(domain)
+    for phrase in GC.required_phrases(REPO_ROOT, domain):
+        hits = [b for b in banned if contains_term(phrase, b)]
+        assert not hits, (
+            f"{domain}: its own rules require {phrase!r} but its ban list "
+            f"forbids {hits}; a file following the rules would fail C-05"
+        )
 
 
 # ---------------------------------------------------------------------------

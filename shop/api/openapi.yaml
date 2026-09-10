@@ -1,0 +1,416 @@
+openapi: 3.1.0
+info:
+  title: Web Shop API
+  version: 1.4.0
+  description: >
+    REST backend for the web shop storefront. Shared conventions for
+    identifiers, money, tax and timestamps are in shop/README.md; the error
+    envelope and code catalogue are in shop/api/errors.md.
+servers:
+  - url: https://shop.example.com
+
+paths:
+  /products:
+    get:
+      operationId: listProducts
+      summary: List active products, newest first unless sorted otherwise.
+      parameters:
+        - name: category
+          in: query
+          required: false
+          schema: { type: string }
+          description: Exact match on the product category.
+        - name: minPrice
+          in: query
+          required: false
+          schema: { type: string }
+          description: Inclusive lower bound, two decimals, e.g. "10.00".
+        - name: maxPrice
+          in: query
+          required: false
+          schema: { type: string }
+          description: Inclusive upper bound, two decimals, e.g. "99.99".
+        - name: sort
+          in: query
+          required: false
+          schema:
+            type: string
+            enum: [name_asc, name_desc, price_asc, price_desc, newest]
+            default: newest
+        - name: page
+          in: query
+          required: false
+          schema: { type: integer, minimum: 1, default: 1 }
+        - name: pageSize
+          in: query
+          required: false
+          schema: { type: integer, minimum: 1, maximum: 100, default: 20 }
+      responses:
+        "200":
+          description: A page of products.
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/ProductPage" }
+        "400":
+          description: A query parameter was malformed or out of range.
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/Error" }
+
+  /products/{id}:
+    get:
+      operationId: getProduct
+      summary: Fetch one product by id.
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema: { type: string, format: uuid }
+      responses:
+        "200":
+          description: The product.
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/Product" }
+        "400":
+          description: The id is not a well-formed UUID.
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/Error" }
+        "404":
+          description: No product with that id.
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/Error" }
+
+  /cart:
+    post:
+      operationId: createCart
+      summary: Create an empty cart.
+      responses:
+        "201":
+          description: The new cart.
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/Cart" }
+
+  /cart/{id}:
+    get:
+      operationId: getCart
+      summary: Fetch one cart with its items and computed totals.
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema: { type: string, format: uuid }
+      responses:
+        "200":
+          description: The cart.
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/Cart" }
+        "400":
+          description: The id is not a well-formed UUID.
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/Error" }
+        "404":
+          description: No cart with that id.
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/Error" }
+
+  /cart/{id}/items:
+    post:
+      operationId: addCartItem
+      summary: Add a product to the cart, or increase its quantity if already present.
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema: { type: string, format: uuid }
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [productId, quantity]
+              properties:
+                productId: { type: string, format: uuid }
+                quantity: { type: integer, minimum: 1 }
+      responses:
+        "201":
+          description: The updated cart.
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/Cart" }
+        "400":
+          description: The id or the body was malformed.
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/Error" }
+        "404":
+          description: No cart, or no product, with that id.
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/Error" }
+        "422":
+          description: The product exists but cannot be ordered.
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/Error" }
+
+  /cart/{id}/items/{itemId}:
+    patch:
+      operationId: updateCartItem
+      summary: Change the quantity of one cart line.
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema: { type: string, format: uuid }
+        - name: itemId
+          in: path
+          required: true
+          schema: { type: string, format: uuid }
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [quantity]
+              properties:
+                quantity: { type: integer, minimum: 1 }
+      responses:
+        "200":
+          description: The updated cart.
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/Cart" }
+        "400":
+          description: An id or the body was malformed.
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/Error" }
+        "404":
+          description: No cart, or no such line in it.
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/Error" }
+    delete:
+      operationId: removeCartItem
+      summary: Remove one line from the cart.
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema: { type: string, format: uuid }
+        - name: itemId
+          in: path
+          required: true
+          schema: { type: string, format: uuid }
+      responses:
+        "204":
+          description: The line was removed.
+        "400":
+          description: An id was malformed.
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/Error" }
+        "404":
+          description: No cart, or no such line in it.
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/Error" }
+
+  /orders:
+    get:
+      operationId: listOrders
+      summary: List a customer's orders, newest first.
+      parameters:
+        - name: customer
+          in: query
+          required: true
+          schema: { type: string, format: uuid }
+      responses:
+        "200":
+          description: Every order belonging to the customer.
+          content:
+            application/json:
+              schema:
+                type: array
+                items: { $ref: "#/components/schemas/Order" }
+        "400":
+          description: The customer id is missing or not a well-formed UUID.
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/Error" }
+    post:
+      operationId: placeOrder
+      summary: Turn a cart into an order.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [cartId, customerId, email, shippingAddress]
+              properties:
+                cartId: { type: string, format: uuid }
+                customerId: { type: string, format: uuid }
+                email: { type: string, format: email }
+                shippingAddress: { type: string }
+      responses:
+        "201":
+          description: The order was placed. The cart moves to status "ordered".
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/Order" }
+        "400":
+          description: The body was malformed.
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/Error" }
+        "404":
+          description: No cart with that id.
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/Error" }
+        "422":
+          description: The cart cannot be ordered, for example because it is empty.
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/Error" }
+
+  /orders/{id}:
+    get:
+      operationId: getOrder
+      summary: Fetch one order by id.
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema: { type: string, format: uuid }
+      responses:
+        "200":
+          description: The order.
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/Order" }
+        "400":
+          description: The id is not a well-formed UUID.
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/Error" }
+        "404":
+          description: No order with that id.
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/Error" }
+
+components:
+  schemas:
+    Money:
+      type: string
+      pattern: '^\d+\.\d{2}$'
+      examples: ["19.99", "0.00"]
+      description: EUR, excluding tax unless the field name says otherwise.
+
+    Product:
+      type: object
+      required: [id, sku, name, category, price, active]
+      properties:
+        id: { type: string, format: uuid }
+        sku: { type: string }
+        name: { type: string }
+        description: { type: string }
+        category: { type: string }
+        price: { $ref: "#/components/schemas/Money" }
+        active: { type: boolean }
+        createdAt: { type: string, format: date-time }
+
+    ProductPage:
+      type: object
+      required: [items, page, pageSize, totalItems, totalPages]
+      properties:
+        items:
+          type: array
+          items: { $ref: "#/components/schemas/Product" }
+        page: { type: integer }
+        pageSize: { type: integer }
+        totalItems: { type: integer }
+        totalPages: { type: integer }
+
+    CartItem:
+      type: object
+      required: [id, productId, name, quantity, unitPrice, lineTotal]
+      properties:
+        id: { type: string, format: uuid }
+        productId: { type: string, format: uuid }
+        name: { type: string }
+        quantity: { type: integer, minimum: 1 }
+        unitPrice: { $ref: "#/components/schemas/Money" }
+        lineTotal: { $ref: "#/components/schemas/Money" }
+
+    Cart:
+      type: object
+      required: [id, status, items, subtotal, tax, total]
+      properties:
+        id: { type: string, format: uuid }
+        status:
+          type: string
+          enum: [open, ordered, abandoned]
+        items:
+          type: array
+          items: { $ref: "#/components/schemas/CartItem" }
+        subtotal: { $ref: "#/components/schemas/Money" }
+        tax: { $ref: "#/components/schemas/Money" }
+        total: { $ref: "#/components/schemas/Money" }
+        createdAt: { type: string, format: date-time }
+        updatedAt: { type: string, format: date-time }
+
+    OrderItem:
+      type: object
+      required: [id, productId, name, quantity, unitPrice, lineTotal]
+      properties:
+        id: { type: string, format: uuid }
+        productId: { type: string, format: uuid }
+        name: { type: string }
+        quantity: { type: integer, minimum: 1 }
+        unitPrice: { $ref: "#/components/schemas/Money" }
+        lineTotal: { $ref: "#/components/schemas/Money" }
+
+    Order:
+      type: object
+      required: [id, orderNumber, customerId, items, subtotal, tax, total, status]
+      properties:
+        id: { type: string, format: uuid }
+        orderNumber:
+          type: string
+          pattern: '^ORD-\d{4}-\d{6}$'
+          examples: ["ORD-2026-000123"]
+        customerId: { type: string, format: uuid }
+        items:
+          type: array
+          items: { $ref: "#/components/schemas/OrderItem" }
+        subtotal: { $ref: "#/components/schemas/Money" }
+        tax: { $ref: "#/components/schemas/Money" }
+        total: { $ref: "#/components/schemas/Money" }
+        status:
+          type: string
+          enum: [placed, shipped, cancelled]
+        createdAt: { type: string, format: date-time }
+
+    Error:
+      type: object
+      required: [error]
+      properties:
+        error:
+          type: object
+          required: [code, message]
+          properties:
+            code: { type: string }
+            message: { type: string }
+            details: { type: object }

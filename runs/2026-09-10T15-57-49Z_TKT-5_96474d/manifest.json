@@ -1,0 +1,168 @@
+{
+  "allowed_write_globs": [
+    "features/db/**",
+    "features/api/**"
+  ],
+  "baseline": {
+    "captured_at": "2026-09-10T15:57:49Z",
+    "dirty": [
+      {
+        "path": "runs/2026-09-10T15-57-49Z_TKT-5_96474d/events.jsonl",
+        "sha256": "82a4071a386f42fcbd43c2aaa6234add52ea63193a58dd44ec91a8d89981e7f2",
+        "status": "??"
+      },
+      {
+        "path": "runs/2026-09-10T15-57-49Z_TKT-5_96474d/manifest.json",
+        "sha256": "1ee7e29fbdf6cbf192ace9df19d56c2c8dcdc745f1ad753c690836485792b1cf",
+        "status": "??"
+      }
+    ],
+    "head": "5d8d63ec015f50a6751c9c973c6ebb8c217f0bca"
+  },
+  "classification": {
+    "amendments": [],
+    "declared_at": "2026-09-10T15:58:02Z",
+    "domains": [
+      "db",
+      "api"
+    ],
+    "evidence": [
+      "An index exists on orders.customer_id.",
+      "Response time for a customer with 10 000 orders is under 500 ms."
+    ],
+    "mentioned_not_in_scope": [],
+    "rationale": "The ticket combines a database index requirement with the API behavior and performance contract for listing a customer\u2019s orders."
+  },
+  "conventions_served": [
+    {
+      "domain": "db",
+      "fingerprint": "3d7d6a02",
+      "path": "conventions/db.md",
+      "served_at": "2026-09-10T15:58:02Z",
+      "sha256": "3d7d6a02d6d004f9f05f56d2e5d1bb4e5d3088904537b5fe7b4ddf4b8c3bc75e"
+    },
+    {
+      "domain": "api",
+      "fingerprint": "a89c22c3",
+      "path": "conventions/api.md",
+      "served_at": "2026-09-10T15:58:02Z",
+      "sha256": "a89c22c308b3277e38b8d490b25fe071ba97ddaa75d96359941fd5742716f3f9"
+    }
+  ],
+  "created_at": "2026-09-10T15:57:49Z",
+  "created_by": "hook:UserPromptSubmit",
+  "finished_at": "2026-09-10T16:00:17Z",
+  "hooks_active": true,
+  "notes": [
+    "Real result, verified independently: classification db+api, exact match. 16 tool calls, zero denials under the policy active at the time, zero out-of-scope changes. Both outputs PASS with full nominal AC coverage.",
+    "SIGNIFICANT finding: this run read tools/tests/test_validate.py, which was not in read_denied_during_run (only conventions/, runs/, eval/ were). That one file alone contains rule IDs, forbidden-term lists and worked mutation examples for ALL THREE domains regardless of what is declared, and the leak-scan did not catch it either since it only looks for the served-conventions marker text and fingerprint, not general domain content. Checked across every real run's events.jsonl before doing anything else: docs/PLAN.md, which holds the actual expected-domain answers and the deliberately-withheld agent rule, was never read in any run. Nothing reported so far is contaminated. Fixed regardless: read_denied_during_run now also covers tools/**, docs/**, schemas/**, policy.json, MANIFEST.json and the original brief. Reproduced and confirmed the fix denies the exact read that happened here. See tools/tests/test_scope.py.",
+    "Content observation, not fixed as a rule: the db scenario is tagged @ac-1 @ac-2 @ac-3 @ac-4, but only actually tests AC-1 (the index exists). AC-2 (before/after equivalence), AC-3 (pagination) and AC-4 (response time) are api-only concerns with nothing in this scenario's content relating to them. No functional gap results -- the api file genuinely and correctly covers all four -- but the db scenario over-claims tags it does not deserve. Separately, and part of the same pattern first seen on TKT-4: the api scenario tagged @ac-2 ('the endpoint returns the same results before and after the index is added') only queries the AFTER state; it does not actually compare against a captured BEFORE state, so the comparative claim is not fully proven either. Not encoded as a new rule for the same reason as TKT-4's finding -- no clean, low-false-positive mechanical signal -- but now seen twice, which is worth naming explicitly as a recognised limitation in the write-up: this validator proves tag-level traceability, not that compound or comparative acceptance criteria are fully exercised."
+  ],
+  "prompts": [
+    {
+      "at": "2026-09-10T15:57:49Z",
+      "text": "/run-ticket TKT-5"
+    }
+  ],
+  "run_id": "2026-09-10T15-57-49Z_TKT-5_96474d",
+  "schema": "gov-run-manifest/1",
+  "session_id": "6d13da20-3339-474f-b2d4-c8c5fc485896",
+  "status": "finished",
+  "ticket_id": "TKT-5",
+  "updated_at": "2026-09-10T16:07:12Z",
+  "validations": [
+    {
+      "at": "2026-09-10T15:59:04Z",
+      "domain": "api",
+      "failures": [
+        "FAIL C-06:3 no scenario covers acceptance criterion 1",
+        "FAIL API-08:9 scenario name must read 'returns <code> when <condition>', found 'returns 200 with the default page size'",
+        "FAIL API-08:18 scenario name must read 'returns <code> when <condition>', found 'returns 200 with an empty page beyond the last page'",
+        "FAIL API-08:27 scenario name must read 'returns <code> when <condition>', found 'returns 200 with the same results for a large customer history under the time budget'"
+      ],
+      "file": "features/api/orders_get.feature",
+      "new_objects": [],
+      "ok": false,
+      "uncovered": [
+        1
+      ],
+      "warnings": []
+    },
+    {
+      "at": "2026-09-10T15:59:04Z",
+      "domain": "db",
+      "failures": [
+        "FAIL C-06:3 no scenario covers acceptance criteria 2, 3, 4"
+      ],
+      "file": "features/db/orders_customer_index.feature",
+      "new_objects": [
+        "index idx_orders_customer_id",
+        "migration 0004_orders_customer_index"
+      ],
+      "ok": false,
+      "uncovered": [
+        2,
+        3,
+        4
+      ],
+      "warnings": []
+    },
+    {
+      "at": "2026-09-10T15:59:55Z",
+      "domain": "api",
+      "failures": [
+        "FAIL C-06:3 no scenario covers acceptance criterion 1",
+        "FAIL C-07:3 @spec-pending, but everything it tests is already specified"
+      ],
+      "file": "features/api/orders_get.feature",
+      "new_objects": [],
+      "ok": false,
+      "uncovered": [
+        1
+      ],
+      "warnings": []
+    },
+    {
+      "at": "2026-09-10T15:59:55Z",
+      "domain": "db",
+      "failures": [
+        "FAIL C-06:3 no scenario covers acceptance criteria 2, 3, 4"
+      ],
+      "file": "features/db/orders_customer_index.feature",
+      "new_objects": [
+        "index idx_orders_customer_id",
+        "migration 0004_orders_customer_index"
+      ],
+      "ok": false,
+      "uncovered": [
+        2,
+        3,
+        4
+      ],
+      "warnings": []
+    },
+    {
+      "at": "2026-09-10T16:00:12Z",
+      "domain": "api",
+      "failures": [],
+      "file": "features/api/orders_get.feature",
+      "new_objects": [],
+      "ok": true,
+      "uncovered": [],
+      "warnings": []
+    },
+    {
+      "at": "2026-09-10T16:00:12Z",
+      "domain": "db",
+      "failures": [],
+      "file": "features/db/orders_customer_index.feature",
+      "new_objects": [
+        "index idx_orders_customer_id",
+        "migration 0004_orders_customer_index"
+      ],
+      "ok": true,
+      "uncovered": [],
+      "warnings": []
+    }
+  ]
+}

@@ -1,0 +1,131 @@
+{
+  "allowed_write_globs": [
+    "features/ui/**",
+    "features/api/**"
+  ],
+  "baseline": {
+    "captured_at": "2026-09-10T15:51:17Z",
+    "dirty": [
+      {
+        "path": "runs/2026-09-10T15-51-17Z_TKT-4_0c2d79/events.jsonl",
+        "sha256": "ad484a45f955f22823e4dea120feb0a908a21324fd77352e50d0133b7e8de7f2",
+        "status": "??"
+      },
+      {
+        "path": "runs/2026-09-10T15-51-17Z_TKT-4_0c2d79/manifest.json",
+        "sha256": "5e4f0fb4c1b8a3538106e6399f01d2bc3125586c6b4ebdd25e02190b587145e5",
+        "status": "??"
+      }
+    ],
+    "head": "d46956aa72bbed0310457c6c26b4e15a42359ea7"
+  },
+  "classification": {
+    "amendments": [],
+    "declared_at": "2026-09-10T15:51:30Z",
+    "domains": [
+      "ui",
+      "api"
+    ],
+    "evidence": [
+      "After the shopper submits checkout, the confirmation page must show the order number returned by POST /orders.",
+      "If order creation fails, the shopper stays on the checkout page and sees an error message."
+    ],
+    "mentioned_not_in_scope": [],
+    "rationale": "The ticket spans the API order-creation contract and the storefront confirmation behavior after checkout submission."
+  },
+  "conventions_served": [
+    {
+      "domain": "ui",
+      "fingerprint": "3f9a4194",
+      "path": "conventions/ui.md",
+      "served_at": "2026-09-10T15:51:30Z",
+      "sha256": "3f9a4194adc65549b5b3d68fb812c88de1deefc25689f959ff34575c6d23d1fd"
+    },
+    {
+      "domain": "api",
+      "fingerprint": "a89c22c3",
+      "path": "conventions/api.md",
+      "served_at": "2026-09-10T15:51:31Z",
+      "sha256": "a89c22c308b3277e38b8d490b25fe071ba97ddaa75d96359941fd5742716f3f9"
+    }
+  ],
+  "created_at": "2026-09-10T15:51:17Z",
+  "created_by": "hook:UserPromptSubmit",
+  "finished_at": "2026-09-10T15:52:50Z",
+  "hooks_active": true,
+  "notes": [
+    "Real result, verified independently: classification ui+api, exact match. 15 tool calls, zero denials, zero out-of-scope changes. Both outputs PASS with full AC coverage. Confirmed POST /orders and every referenced UI element already exist in shop/ (openapi.yaml, pages.md), so spec_pending=false on both outputs is correct, not a missed check.",
+    "Content observation, not a rule violation: AC-2 is a compound claim, 'returns 422 and no order is created.' The api scenario tagged @ac-2 asserts only the 422 status and error code; it never independently verifies that no order was actually created (e.g. a follow-up GET /orders showing the count unchanged). Unlike the TKT-6 method mismatch and TKT-1 element-extraction bugs, this was not turned into a new validator rule: recognising 'this criterion claims an absent side effect and the scenario must independently prove that absence' is not a clean, low-false-positive mechanical check the way HTTP-method matching was -- many legitimate test suites treat a correct error status as sufficient proof of non-creation, and a rule flagging every such case would be opinionated rather than a crisp signal. Left as a human-reviewable observation rather than encoded as a check that might be wrong as often as it is right.",
+    "Also observed, not a problem: the agent read features/api/cart_total_get.feature (TKT-2's real output) as a reference in addition to the exemplar it was pointed to, and read .github/copilot-instructions.md directly. Both correctly allowed (own-domain reads); noted only because it shows the agent using accumulated real output as context once the repo has some history, not just the designated exemplar."
+  ],
+  "prompts": [
+    {
+      "at": "2026-09-10T15:51:17Z",
+      "text": "/run-ticket TKT-4"
+    }
+  ],
+  "run_id": "2026-09-10T15-51-17Z_TKT-4_0c2d79",
+  "schema": "gov-run-manifest/1",
+  "session_id": "6d13da20-3339-474f-b2d4-c8c5fc485896",
+  "status": "finished",
+  "ticket_id": "TKT-4",
+  "updated_at": "2026-09-10T15:55:37Z",
+  "validations": [
+    {
+      "at": "2026-09-10T15:52:20Z",
+      "domain": "api",
+      "failures": [
+        "FAIL C-05:17 API-12 forbids 'shopper' in api: '\"email\": \"shopper@example.com\",'",
+        "FAIL C-06:3 no scenario covers acceptance criteria 3, 4",
+        "FAIL API-05:9 scenario 'returns 201 when the cart is valid' must send exactly one request with 'When I send a <METHOD> request to \"<path>\"', found 0",
+        "FAIL API-05:13 unexpected When step in 'returns 201 when the cart is valid': 'When I send a POST request to \"/orders\" with body:'",
+        "FAIL API-05:27 scenario 'returns 422 when the cart is empty' must send exactly one request with 'When I send a <METHOD> request to \"<path>\"', found 0",
+        "FAIL API-05:29 unexpected When step in 'returns 422 when the cart is empty': 'When I send a POST request to \"/orders\" with body:'"
+      ],
+      "file": "features/api/orders_post.feature",
+      "new_objects": [],
+      "ok": false,
+      "uncovered": [
+        3,
+        4
+      ],
+      "warnings": []
+    },
+    {
+      "at": "2026-09-10T15:52:20Z",
+      "domain": "ui",
+      "failures": [
+        "FAIL C-06:3 no scenario covers acceptance criteria 1, 2",
+        "FAIL UI-06:14 'And I see the ordered items list' does not use an interaction verb (click, select, enter, clear, choose, submit, open, remove, set, type, navigate to)"
+      ],
+      "file": "features/ui/checkout_confirmation.feature",
+      "new_objects": [],
+      "ok": false,
+      "uncovered": [
+        1,
+        2
+      ],
+      "warnings": []
+    },
+    {
+      "at": "2026-09-10T15:52:45Z",
+      "domain": "api",
+      "failures": [],
+      "file": "features/api/orders_post.feature",
+      "new_objects": [],
+      "ok": true,
+      "uncovered": [],
+      "warnings": []
+    },
+    {
+      "at": "2026-09-10T15:52:45Z",
+      "domain": "ui",
+      "failures": [],
+      "file": "features/ui/checkout_confirmation.feature",
+      "new_objects": [],
+      "ok": true,
+      "uncovered": [],
+      "warnings": []
+    }
+  ]
+}

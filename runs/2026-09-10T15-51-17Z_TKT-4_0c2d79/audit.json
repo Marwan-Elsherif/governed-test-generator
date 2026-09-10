@@ -1,0 +1,271 @@
+{
+  "artifacts": {
+    "events": "events.jsonl",
+    "served": "served/",
+    "transcript": null
+  },
+  "classification": {
+    "amendments": [],
+    "declared_at": "2026-09-10T15:51:30Z",
+    "declared_domains": [
+      "ui",
+      "api"
+    ],
+    "evidence": [
+      "After the shopper submits checkout, the confirmation page must show the order number returned by POST /orders.",
+      "If order creation fails, the shopper stays on the checkout page and sees an error message."
+    ],
+    "expected_domains": [
+      "ui",
+      "api"
+    ],
+    "match": "exact",
+    "mentioned_not_in_scope": [],
+    "rationale": "The ticket spans the API order-creation contract and the storefront confirmation behavior after checkout submission."
+  },
+  "conventions": {
+    "common_sha256": "99ec37430b2787afcc2eccf93212fc4b4ad6377815a12b2d47c2868749877992",
+    "direct_reads_denied": 0,
+    "leak_scan": {
+      "hits": [],
+      "responses_scanned": 14
+    },
+    "served": [
+      {
+        "domain": "ui",
+        "fingerprint": "3f9a4194",
+        "path": "conventions/ui.md",
+        "served_at": "2026-09-10T15:51:30Z",
+        "sha256": "3f9a4194adc65549b5b3d68fb812c88de1deefc25689f959ff34575c6d23d1fd"
+      },
+      {
+        "domain": "api",
+        "fingerprint": "a89c22c3",
+        "path": "conventions/api.md",
+        "served_at": "2026-09-10T15:51:31Z",
+        "sha256": "a89c22c308b3277e38b8d490b25fe071ba97ddaa75d96359941fd5742716f3f9"
+      }
+    ]
+  },
+  "git": {
+    "changed_files": [
+      {
+        "domain": "api",
+        "in_scope": true,
+        "path": "features/api/orders_post.feature",
+        "sha256": "a0542883913c04950beab6d25bcfbef3738f54e9c891b16334979f111b63e5aa",
+        "status": "??"
+      },
+      {
+        "domain": "ui",
+        "in_scope": true,
+        "path": "features/ui/checkout_confirmation.feature",
+        "sha256": "47158405b0b1967f026c5e03f56aa3727c917c28bccfb50cd608ea4de09ffa33",
+        "status": "??"
+      }
+    ],
+    "head_at_finish": "d46956aa72bbed0310457c6c26b4e15a42359ea7",
+    "head_at_start": "d46956aa72bbed0310457c6c26b4e15a42359ea7",
+    "out_of_scope_changes": [],
+    "patch": null
+  },
+  "governance": {
+    "events_recorded": 38,
+    "finalized_by": "cli:finish",
+    "hooks_active": true,
+    "integrity": "not_configured",
+    "policy_sha256": "94d7d3d89c71004b05de543d2d5ec4b219f0b0db294a560f34d6fb6415b1133f"
+  },
+  "notes": [
+    "Real result, verified independently: classification ui+api, exact match. 15 tool calls, zero denials, zero out-of-scope changes. Both outputs PASS with full AC coverage. Confirmed POST /orders and every referenced UI element already exist in shop/ (openapi.yaml, pages.md), so spec_pending=false on both outputs is correct, not a missed check.",
+    "Content observation, not a rule violation: AC-2 is a compound claim, 'returns 422 and no order is created.' The api scenario tagged @ac-2 asserts only the 422 status and error code; it never independently verifies that no order was actually created (e.g. a follow-up GET /orders showing the count unchanged). Unlike the TKT-6 method mismatch and TKT-1 element-extraction bugs, this was not turned into a new validator rule: recognising 'this criterion claims an absent side effect and the scenario must independently prove that absence' is not a clean, low-false-positive mechanical check the way HTTP-method matching was -- many legitimate test suites treat a correct error status as sufficient proof of non-creation, and a rule flagging every such case would be opinionated rather than a crisp signal. Left as a human-reviewable observation rather than encoded as a check that might be wrong as often as it is right.",
+    "Also observed, not a problem: the agent read features/api/cart_total_get.feature (TKT-2's real output) as a reference in addition to the exemplar it was pointed to, and read .github/copilot-instructions.md directly. Both correctly allowed (own-domain reads); noted only because it shows the agent using accumulated real output as context once the repo has some history, not just the designated exemplar."
+  ],
+  "outputs": [
+    {
+      "ac_coverage": {
+        "1": [
+          "returns 201 when the cart is valid"
+        ],
+        "2": [
+          "returns 422 when the cart is empty"
+        ],
+        "3": [
+          "returns 201 when the cart is valid"
+        ],
+        "4": [
+          "returns 422 when the cart is empty"
+        ]
+      },
+      "adds_to_specification": [],
+      "domain": "api",
+      "failures": [],
+      "path": "features/api/orders_post.feature",
+      "scenarios": 2,
+      "sha256": "a0542883913c04950beab6d25bcfbef3738f54e9c891b16334979f111b63e5aa",
+      "snapshot": "output/orders_post.feature",
+      "spec_pending": false,
+      "uncovered": [],
+      "validation": "PASS",
+      "warnings": []
+    },
+    {
+      "ac_coverage": {
+        "1": [
+          "Shopper completes checkout and sees the order summary"
+        ],
+        "2": [
+          "Shopper cannot place an order from an empty cart"
+        ],
+        "3": [
+          "Shopper completes checkout and sees the order summary"
+        ],
+        "4": [
+          "Shopper cannot place an order from an empty cart"
+        ]
+      },
+      "adds_to_specification": [],
+      "domain": "ui",
+      "failures": [],
+      "path": "features/ui/checkout_confirmation.feature",
+      "scenarios": 2,
+      "sha256": "47158405b0b1967f026c5e03f56aa3727c917c28bccfb50cd608ea4de09ffa33",
+      "snapshot": "output/checkout_confirmation.feature",
+      "spec_pending": false,
+      "uncovered": [],
+      "validation": "PASS",
+      "warnings": []
+    }
+  ],
+  "policy": {
+    "allowed_write_globs": [
+      "features/ui/**",
+      "features/api/**"
+    ],
+    "attempted_violations": [],
+    "terminal": {
+      "allowed": [
+        "python3 tools/gov.py declare --ticket TKT-4 --domains ui,api --rationale \"The ticket spans the API order-creation contract and the storefront confirmation behavior after checkout submission.\" --evidence \"After the shopper submits checkout, the confirmation page must show the order number returned by POST /orders.\" --evidence \"If order creation fails, the shopper stays on the checkout page and sees an error message.\"",
+        "python3 tools/gov.py validate",
+        "python3 tools/gov.py validate",
+        "python3 tools/gov.py finish"
+      ],
+      "denied": []
+    },
+    "tool_calls": {
+      "allowed": 15,
+      "denied": 0,
+      "total": 15
+    }
+  },
+  "run_id": "2026-09-10T15-51-17Z_TKT-4_0c2d79",
+  "schema_version": "1.0",
+  "session": {
+    "agent": {
+      "name": "feature-author",
+      "path": ".github/agents/feature-author.agent.md",
+      "sha256": "f34c8119371360a42700849097b43ae2f37c0299451131115639a9b8f5030071"
+    },
+    "client": {
+      "copilot_version": "0.64.1",
+      "producer": "copilot-agent",
+      "vscode_version": "1.136.2"
+    },
+    "created_by": "hook:UserPromptSubmit",
+    "finished_at": "2026-09-10T15:52:50Z",
+    "model": null,
+    "session_id": "6d13da20-3339-474f-b2d4-c8c5fc485896",
+    "started_at": "2026-09-10T15:51:17Z"
+  },
+  "ticket": {
+    "acceptance_criteria_count": 4,
+    "id": "TKT-4",
+    "path": "tickets/TKT-4.md",
+    "sha256": "43786be7aca7eb10b053ae7961b7e4a6dd65dc269d097a277c0cb5cf16ea2d17",
+    "title": "Checkout confirmation"
+  },
+  "validation": {
+    "attempts": [
+      {
+        "at": "2026-09-10T15:52:20Z",
+        "domain": "api",
+        "failures": [
+          "FAIL C-05:17 API-12 forbids 'shopper' in api: '\"email\": \"shopper@example.com\",'",
+          "FAIL C-06:3 no scenario covers acceptance criteria 3, 4",
+          "FAIL API-05:9 scenario 'returns 201 when the cart is valid' must send exactly one request with 'When I send a <METHOD> request to \"<path>\"', found 0",
+          "FAIL API-05:13 unexpected When step in 'returns 201 when the cart is valid': 'When I send a POST request to \"/orders\" with body:'",
+          "FAIL API-05:27 scenario 'returns 422 when the cart is empty' must send exactly one request with 'When I send a <METHOD> request to \"<path>\"', found 0",
+          "FAIL API-05:29 unexpected When step in 'returns 422 when the cart is empty': 'When I send a POST request to \"/orders\" with body:'"
+        ],
+        "file": "features/api/orders_post.feature",
+        "new_objects": [],
+        "ok": false,
+        "uncovered": [
+          3,
+          4
+        ],
+        "warnings": []
+      },
+      {
+        "at": "2026-09-10T15:52:20Z",
+        "domain": "ui",
+        "failures": [
+          "FAIL C-06:3 no scenario covers acceptance criteria 1, 2",
+          "FAIL UI-06:14 'And I see the ordered items list' does not use an interaction verb (click, select, enter, clear, choose, submit, open, remove, set, type, navigate to)"
+        ],
+        "file": "features/ui/checkout_confirmation.feature",
+        "new_objects": [],
+        "ok": false,
+        "uncovered": [
+          1,
+          2
+        ],
+        "warnings": []
+      },
+      {
+        "at": "2026-09-10T15:52:45Z",
+        "domain": "api",
+        "failures": [],
+        "file": "features/api/orders_post.feature",
+        "new_objects": [],
+        "ok": true,
+        "uncovered": [],
+        "warnings": []
+      },
+      {
+        "at": "2026-09-10T15:52:45Z",
+        "domain": "ui",
+        "failures": [],
+        "file": "features/ui/checkout_confirmation.feature",
+        "new_objects": [],
+        "ok": true,
+        "uncovered": [],
+        "warnings": []
+      }
+    ],
+    "cross_check": {
+      "features/api/orders_post.feature": {
+        "db": 11,
+        "ui": 15
+      },
+      "features/ui/checkout_confirmation.feature": {
+        "api": 12,
+        "db": 11
+      }
+    },
+    "final": {
+      "all_pass": true,
+      "files": {
+        "features/api/orders_post.feature": "PASS",
+        "features/ui/checkout_confirmation.feature": "PASS"
+      }
+    }
+  },
+  "verdict": {
+    "policy_held": true,
+    "reasons": [
+      "policy held, outputs valid, classification matches the expected domains"
+    ],
+    "status": "PASS"
+  }
+}

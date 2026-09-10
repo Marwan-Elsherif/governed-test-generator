@@ -1,0 +1,327 @@
+== GOVERNANCE: TKT-4 declared as [ui, api] ==
+Run: runs/2026-09-10T15-51-17Z_TKT-4_0c2d79
+Allowed write paths: features/ui/**, features/api/**
+Everything else is denied and recorded. Reads of conventions/ are denied: this output is the only copy you get, and it is logged.
+
+== CONVENTIONS: common (all domains) ==
+# Common conventions (all domains)
+
+Version 1. These rules apply to every feature file in `features/`, in addition
+to the rules of its domain. Rule IDs are checked mechanically by
+`python3 tools/gov.py validate`; a rule is FAIL unless marked WARN.
+
+## Header and location
+
+- **C-01 Location.** The file lives at `features/<domain>/<name>.feature`, where
+  `<domain>` is `ui`, `api` or `db` and `<name>` is snake_case: lowercase
+  letters, digits and underscores only.
+- **C-02 Header.** The first line of the file is exactly
+  `# gov: ticket=<TKT-n> domain=<domain> conventions=<domain>@<fingerprint>`.
+  The domain matches the folder. The fingerprint is the eight-character value
+  printed when the conventions were served to you; it is not in any file you
+  can read, so copy it from that output. A wrong or missing fingerprint fails.
+- **C-03 Structure.** One `Feature:`. At least one `Scenario:` or
+  `Scenario Outline:`. Every scenario has at least one `When` and at least one
+  `Then`, and no `Given` appears after a `When` or `Then` (`And`/`But` take the
+  meaning of the step above them). Every `Scenario Outline` has an `Examples:`
+  table with at least one data row.
+
+## Tags
+
+- **C-04 Domain and ticket tags.** The feature line carries `@<domain>` and
+  exactly one `@TKT-n` tag naming the ticket. It carries no other domain's
+  tag. (Hand-written exemplars carry `@exemplar` instead of a ticket tag.)
+- **C-05 Lexicon.** The file contains none of the domain's forbidden terms,
+  listed in the domain conventions. Comment lines are not scanned. Matching is
+  case-insensitive on whole words.
+- **C-06 Traceability.** Every scenario carries at least one `@ac-<n>` tag,
+  where `<n>` is the position of an acceptance criterion in the ticket
+  (first criterion is `@ac-1`), or `@ac-extra` for a scenario beyond the
+  ticket's criteria. Every criterion in the ticket appears on at least one
+  scenario. A criterion may be covered by several scenarios.
+- **C-07 Target state.** If the thing under test is not in the domain's
+  specification yet, the feature line carries `@spec-pending`; if it is already
+  specified, it must not. What "the specification" means, and what counts as
+  "the thing under test", is defined per domain. The check runs both ways.
+
+## Hygiene
+
+- **C-08 Uniqueness.** Scenario names are unique within the feature. No step
+  line is repeated verbatim within one scenario.
+- **C-09 Size (WARN).** At most 10 steps per scenario and at most 12 scenarios
+  per feature. Split the feature rather than exceed this.
+
+## When the ticket and the specification disagree
+
+Follow the specification in `shop/` and say so in the run summary. The
+specification is the contract; the ticket is a request written quickly. A
+discrepancy is worth surfacing, not silently resolving either way.
+
+== CONVENTIONS: ui  |  fingerprint: 3f9a4194  (copy this into the file header exactly) ==
+# ui conventions
+
+Version 1. Applies to `features/ui/**`, together with `conventions/common.md`.
+Rule IDs are checked mechanically by `python3 tools/gov.py validate`; a rule
+is FAIL unless marked WARN. Worked example: `features/ui/product_detail_add_to_cart.feature`.
+
+## What a ui feature file is
+
+A user journey. Every step is something a shopper does or sees, written in the
+shopper's words. It never mentions how the storefront is built or what happens
+behind it: no requests, no status codes, no tables. If a behaviour cannot be
+observed by a person looking at the screen or the address bar, it does not
+belong in a ui feature.
+
+The vocabulary for pages and elements is `shop/ui/pages.md`. Behaviours that
+already hold, such as in-page updates and the URL reflecting the view, are in
+`shop/ui/journeys.md`.
+
+## Rules
+
+- **UI-01 Title.** `Feature: UI - <Page> - <capability>`, where `<Page>` is a
+  page name from the registry, spelled exactly, and `<capability>` is a short
+  noun phrase.
+- **UI-02 User story.** The three lines directly under the feature line are
+  `As a shopper`, `I want <goal>`, `So that <benefit>`, in that order.
+- **UI-03 Background.** A `Background:` exists and its first step is
+  `Given I am on the "<Page>" page`, naming the same page as the title.
+- **UI-04 Scenario names.** Every scenario name starts with `Shopper ` followed
+  by a verb phrase: `Scenario: Shopper filters by category`.
+- **UI-05 Scenario tags.** Every scenario carries exactly one of `@happy-path`
+  or `@negative`. At least one scenario in the feature carries `@smoke`.
+- **UI-06 Interactions.** Every `When` step (and `And`/`But` continuing a
+  `When`) starts with `I ` and one of these verbs: `click`, `select`, `enter`,
+  `clear`, `choose`, `submit`, `open`, `remove`, `set`, `type`, `navigate to`.
+  Elements are referred to as `the "<Element>"` and pages as `the "<Page>" page`.
+- **UI-07 Assertions.** Every `Then` step (and `And`/`But` continuing a `Then`)
+  starts with one of: `I should see`, `I should not see`, `I should be on the
+  "<Page>" page`, `the URL should contain`, `the URL should not contain`,
+  `the page should not reload`.
+- **UI-08 Names.** Every `the "<Page>" page` names a page in the registry.
+  Every `the "<Element>"` names an element listed for the page the scenario is
+  on, unless the feature is `@spec-pending` (C-07). Free text is written as
+  `the text "..."` and is not checked against the registry.
+- **UI-09 Forbidden terms.** `http`, `status code`, `endpoint`, `json`, `sql`,
+  `table`, `row`, `rows`, `insert`, `migration`, `constraint`,
+  `index`, `database`, `xpath`, `css`, `200`, `201`, `204`, `400`, `404`,
+  `422`, `500`. The words URL, reload and query are not forbidden: a shopper
+  can see them.
+
+## Target state (C-07 for ui)
+
+"The specification" is the page registry. "The thing under test" is the set
+of element names the feature refers to. If any of them is not listed for its
+page, the feature is `@spec-pending`. The run summary names the new elements.
+
+## Writing it well
+
+Set up state in the shopper's terms (`Given the cart contains 2 items`), not
+in the system's. One journey per scenario; if a scenario needs a second
+`When`, it is usually two scenarios. Assert what the shopper sees at the end,
+not every intermediate state.
+
+== WORKED EXAMPLE: features/ui/product_detail_add_to_cart.feature ==
+@ui @exemplar
+Feature: UI - Product Detail - Add a product to the cart
+  As a shopper
+  I want to add a product to my cart from its detail page
+  So that I can buy it without searching for it again
+
+  Background:
+    Given I am on the "Product Detail" page
+
+  @happy-path @smoke @ac-1
+  Scenario: Shopper adds a product with the default quantity
+    When I click the "Add to cart button"
+    Then I should see the text "Added to your cart"
+    And I should be on the "Product Detail" page
+
+  @happy-path @ac-2
+  Scenario: Shopper adds three of a product
+    When I enter "3" in the "Quantity selector"
+    And I click the "Add to cart button"
+    Then I should see the text "Added to your cart"
+
+  @negative @ac-3
+  Scenario: Shopper cannot add a zero quantity
+    When I enter "0" in the "Quantity selector"
+    And I click the "Add to cart button"
+    Then I should see the text "Quantity must be at least 1"
+    And I should not see the text "Added to your cart"
+
+  @happy-path @ac-4
+  Scenario: Shopper returns to the listing
+    When I click the "Back to listing link"
+    Then I should be on the "Product Listing" page
+    And the URL should contain "/products"
+
+== CONTEXT PACK: ui (read these with the read tool for facts) ==
+- shop/README.md
+- shop/ui/pages.md
+- shop/ui/journeys.md
+
+== CONVENTIONS: api  |  fingerprint: a89c22c3  (copy this into the file header exactly) ==
+# api conventions
+
+Version 1. Applies to `features/api/**`, together with `conventions/common.md`.
+Rule IDs are checked mechanically by `python3 tools/gov.py validate`; a rule
+is FAIL unless marked WARN. Worked example: `features/api/products_get.feature`.
+
+## What an api feature file is
+
+A request/response contract for one endpoint. Every scenario sends exactly one
+request and asserts the status code and the body. It says nothing about
+screens or storage: no clicks, no tables. Test data is arranged through
+fixture steps that describe state ("a cart exists with ..."), never through
+SQL or the database vocabulary.
+
+Endpoints, parameters and response shapes are in `shop/api/openapi.yaml`.
+The error envelope, the code catalogue and the 400/404/422 rule are in
+`shop/api/errors.md`. Identifier, money and tax rules are in `shop/README.md`.
+
+## Rules
+
+- **API-01 Title.** `Feature: API <METHOD> <path>`, with the method in upper
+  case and the path template as written in the specification or the ticket,
+  for example `Feature: API GET /cart/{id}/total`.
+- **API-02 Feature tags.** The feature line carries `@api` and the method in
+  lower case as a tag: `@get`, `@post`, `@patch`, `@delete` or `@put`.
+- **API-03 Background.** A `Background:` exists and its first step is exactly
+  `Given the API is available`.
+- **API-04 Status tag.** Every scenario carries exactly one `@status-<code>`
+  tag with a three-digit code, and contains the step
+  `Then the response status is <code>` with the same code.
+- **API-05 One request.** Every scenario contains exactly one step of the form
+  `When I send a <METHOD> request to "<path>"`, where `<METHOD>` is the
+  feature's method and `<path>` matches the title's path template. A request
+  body, if any, is a docstring directly under that step.
+- **API-06 Body assertion.** Every scenario contains at least one of
+  `And the response body has "<json path>" equal to <value>`,
+  `And the response body has "<json path>" matching <regex>`,
+  `And the response body is empty`,
+  `And the error code is "<CODE>"`. Every scenario with a 4xx status contains
+  `And the error code is "<CODE>"` with a code from the catalogue.
+- **API-07 Order.** Scenarios appear in ascending status code order: 2xx
+  first, then 4xx ascending.
+- **API-08 Scenario names.** `returns <code> when <condition>`, where
+  `<code>` equals the scenario's status tag.
+- **API-09 Money.** Any value asserted for `subtotal`, `tax`, `total`, `price`,
+  `unitPrice` or `lineTotal` is a quoted string with exactly two decimals:
+  `"19.99"`, `"0.00"`. Never a bare number.
+- **API-10 Timing.** A scenario asserting a response time carries `@nfr`, and a
+  scenario tagged `@nfr` asserts one, with `the response time is under <n> ms`.
+  Such a scenario also states the data volume in a `Given` step containing the
+  count, a number of at least three digits, so the figure is never implied.
+- **API-11 Fixtures.** A `Given` step naming an entity by id takes the form
+  `Given a <thing> exists with id "<uuid>"`, optionally continuing with further
+  detail, or `Given no <thing> exists with id "<uuid>"`. Other `Given` steps,
+  such as a volume statement, are free text. Every UUID literal anywhere in the
+  file is from the reserved test range `00000000-0000-4000-8000-XXXXXXXXXXXX`.
+- **API-12 Forbidden terms.** `click`, `button`, `screen`, `shopper`,
+  `i see`, `i should see`, `the page shows`, `table`, `row`, `rows`, `column`,
+  `insert into`, `select *`, `constraint`, `database`, `schema`. The bare word
+  page is not forbidden: pagination needs it.
+- **API-13 Acceptance-criterion method match (WARN).** A `@ac-<n>` tag records
+  that a scenario *covers* a criterion; it does not by itself prove the
+  scenario tests what the criterion says. When a ticket's criterion names an
+  HTTP method (`GET`, `POST`, `PUT`, `PATCH`, `DELETE`), a scenario tagged for
+  that criterion should send a request with that method. A mismatch is a
+  warning, not a failure -- it is a heuristic on one signal (the method word),
+  not proof the scenario is wrong -- but it is exactly the kind of gap C-06's
+  tag check cannot see on its own, and worth a second look before finishing.
+
+## Target state (C-07 for api)
+
+"The specification" is `openapi.yaml`. "The thing under test" is the title's
+method and path. If that operation is not in the specification, the feature
+is `@spec-pending` and the contract is derived from the ticket plus the shared
+rules in `shop/`. The run summary says which operation is new.
+
+## Writing it well
+
+The happy path first, then each failure by ascending status. Use a
+`Scenario Outline` when several inputs share one outcome. Assert the fields
+the ticket names, not the whole body.
+
+== WORKED EXAMPLE: features/api/products_get.feature ==
+@api @get @exemplar
+Feature: API GET /products/{id}
+
+  Background:
+    Given the API is available
+
+  @status-200 @ac-1
+  Scenario: returns 200 when the product exists
+    Given a product exists with id "00000000-0000-4000-8000-000000000101" and price "19.99"
+    When I send a GET request to "/products/00000000-0000-4000-8000-000000000101"
+    Then the response status is 200
+    And the response body has "$.id" equal to "00000000-0000-4000-8000-000000000101"
+    And the response body has "$.price" equal to "19.99"
+
+  @status-400 @ac-2
+  Scenario: returns 400 when the id is not a UUID
+    When I send a GET request to "/products/not-a-uuid"
+    Then the response status is 400
+    And the error code is "INVALID_ID_FORMAT"
+
+  @status-404 @ac-3
+  Scenario: returns 404 when no product has the id
+    Given no product exists with id "00000000-0000-4000-8000-000000000404"
+    When I send a GET request to "/products/00000000-0000-4000-8000-000000000404"
+    Then the response status is 404
+    And the error code is "PRODUCT_NOT_FOUND"
+
+== CONTEXT PACK: api (read these with the read tool for facts) ==
+- shop/README.md
+- shop/api/openapi.yaml
+- shop/api/errors.md
+
+== TICKET: TKT-4 — Checkout confirmation ==
+After the shopper submits checkout, the confirmation page must show the order number returned by `POST /orders`.
+Acceptance criteria (use these numbers in @ac-<n> tags):
+  ac-1: `POST /orders` with a valid cart returns 201 and an `orderNumber`.
+  ac-2: `POST /orders` with an empty cart returns 422 and no order is created.
+  ac-3: The confirmation page displays the returned `orderNumber` and the ordered items.
+  ac-4: If order creation fails, the shopper stays on the checkout page and sees an error message.
+
+== SKELETON: features/ui/checkout_confirmation.feature (create this file; keep line 1 exactly) ==
+# gov: ticket=TKT-4 domain=ui conventions=ui@3f9a4194
+@ui @TKT-4
+Feature: UI - <Page> - <capability>
+  As a shopper
+  I want <goal>
+  So that <benefit>
+
+  Background:
+    Given I am on the "<Page>" page
+
+  # Scenario names start "Shopper ...". Each scenario is @happy-path or
+  # @negative, at least one is @smoke. Add @spec-pending on the feature line
+  # if any element you refer to is not in shop/ui/pages.md. Acceptance criteria:
+  # ac-1: `POST /orders` with a valid cart returns 201 and an `orderNumber`.
+  # ac-2: `POST /orders` with an empty cart returns 422 and no order is created.
+  # ac-3: The confirmation page displays the returned `orderNumber` and the ordered items.
+  # ac-4: If order creation fails, the shopper stays on the checkout page and sees an error message.
+
+== SKELETON: features/api/orders_post.feature (create this file; keep line 1 exactly) ==
+# gov: ticket=TKT-4 domain=api conventions=api@a89c22c3
+@api @post @TKT-4
+Feature: API POST /orders
+
+  Background:
+    Given the API is available
+
+  # Add @spec-pending on the feature line above if POST /orders is not in
+  # shop/api/openapi.yaml. One scenario per acceptance criterion, ascending
+  # status order, each tagged @status-<code> and @ac-<n>:
+  # ac-1: `POST /orders` with a valid cart returns 201 and an `orderNumber`.
+  # ac-2: `POST /orders` with an empty cart returns 422 and no order is created.
+  # ac-3: The confirmation page displays the returned `orderNumber` and the ordered items.
+  # ac-4: If order creation fails, the shopper stays on the checkout page and sees an error message.
+
+== NEXT ==
+1. Read the context pack files you need, then create the feature file(s) at the paths above, one per declared domain.
+2. Run: python3 tools/gov.py validate
+3. Fix every FAIL it names (each is a rule id from the conventions above) and validate again until every file is PASS.
+4. Run: python3 tools/gov.py finish   (writes the audit record; the run is not complete until this succeeds)
+Then reply with the run summary in the format your instructions specify.

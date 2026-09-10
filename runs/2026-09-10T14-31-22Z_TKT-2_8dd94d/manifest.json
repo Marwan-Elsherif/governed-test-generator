@@ -54,9 +54,11 @@
   "created_by": "hook:UserPromptSubmit",
   "finished_at": "2026-09-10T14:32:06Z",
   "hooks_active": true,
+  "model": "GPT-5.6 Luna (Auto)",
   "notes": [
     "Discovery run (step 9), first live run in VS Code Copilot. Agent's RUN SUMMARY reported 'denied tool calls: 0'; the record shows 1 (tool_search, VS Code's tool-catalogue lookup, denied by the name-based classifier; harmless here, fixed after this run by allowing catalogue lookups). Model as shown in the chat UI to be recorded separately.",
-    "Audit regenerated after finish: the first version of `gov.py annotate` rebuilt it against a working tree that by then contained uncommitted tooling edits, which the scope check reported as out-of-scope changes. Regenerated with the tooling committed, reproducing finish-time conditions; observed facts (tool calls, denials, outputs, git) are unchanged from the original finish."
+    "Audit regenerated after finish: the first version of `gov.py annotate` rebuilt it against a working tree that by then contained uncommitted tooling edits, which the scope check reported as out-of-scope changes. Regenerated with the tooling committed, reproducing finish-time conditions; observed facts (tool calls, denials, outputs, git) are unchanged from the original finish.",
+    "AI credits reported by the Copilot UI for this run: 1.1"
   ],
   "prompts": [
     {
@@ -69,7 +71,7 @@
   "session_id": "40d2a301-5837-43ba-9d22-570fa7c00e0b",
   "status": "finished",
   "ticket_id": "TKT-2",
-  "updated_at": "2026-09-10T14:43:51Z",
+  "updated_at": "2026-09-10T14:51:56Z",
   "validations": [
     {
       "at": "2026-09-10T14:32:02Z",

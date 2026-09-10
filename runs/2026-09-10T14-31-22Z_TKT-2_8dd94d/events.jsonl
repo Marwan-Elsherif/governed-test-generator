@@ -24,3 +24,5 @@
 {"at": "2026-09-10T14:32:06Z", "event": "finish", "finalized_by": "cli:finish"}
 {"at": "2026-09-10T14:32:10Z", "event": "transcript_attached", "source": "/Users/mrwan/Library/Application Support/Code/User/workspaceStorage/27c972c29afae7050b7f981bf3bebe56/GitHub.copilot-chat/transcripts/40d2a301-5837-43ba-9d22-570fa7c00e0b.jsonl"}
 {"at": "2026-09-10T14:41:40Z", "event": "annotate", "note": "Discovery run (step 9), first live run in VS Code Copilot. Agent's RUN SUMMARY reported 'denied tool calls: 0'; the record shows 1 (tool_search, VS Code's tool-catalogue lookup, denied by the name-based classifier; harmless here, fixed after this run by allowing catalogue lookups). Model as shown in the chat UI to be recorded separately."}
+{"at": "2026-09-10T14:51:56Z", "event": "annotate", "model": "GPT-5.6 Luna (Auto)"}
+{"at": "2026-09-10T14:51:56Z", "event": "annotate", "note": "AI credits reported by the Copilot UI for this run: 1.1"}

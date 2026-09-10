@@ -1,0 +1,180 @@
+{
+  "artifacts": {
+    "events": "events.jsonl",
+    "served": "served/",
+    "transcript": null
+  },
+  "classification": {
+    "amendments": [],
+    "declared_at": "2026-09-10T14:50:13Z",
+    "declared_domains": [
+      "db"
+    ],
+    "evidence": [
+      "order_items.quantity currently accepts any integer. It must be a positive integer.",
+      "The constraint is reversible (down migration removes it)."
+    ],
+    "expected_domains": [
+      "db"
+    ],
+    "match": "exact",
+    "mentioned_not_in_scope": [],
+    "rationale": "The ticket tests a database column constraint and reversible migration behavior."
+  },
+  "conventions": {
+    "common_sha256": "99ec37430b2787afcc2eccf93212fc4b4ad6377815a12b2d47c2868749877992",
+    "direct_reads_denied": 0,
+    "leak_scan": {
+      "hits": [],
+      "responses_scanned": 11
+    },
+    "served": [
+      {
+        "domain": "db",
+        "fingerprint": "3d7d6a02",
+        "path": "conventions/db.md",
+        "served_at": "2026-09-10T14:50:13Z",
+        "sha256": "3d7d6a02d6d004f9f05f56d2e5d1bb4e5d3088904537b5fe7b4ddf4b8c3bc75e"
+      }
+    ]
+  },
+  "git": {
+    "changed_files": [
+      {
+        "domain": "db",
+        "in_scope": true,
+        "path": "features/db/order_items_order_items_quantity_constraint.feature",
+        "sha256": "4169b46e9952a2a7e0aea9092c42ad93161cda3ed7f1c2afc3d51d1dc9703c15",
+        "status": "??"
+      }
+    ],
+    "head_at_finish": "baeebc2e02042967e10388a59c0dfe9d46ad35cb",
+    "head_at_start": "baeebc2e02042967e10388a59c0dfe9d46ad35cb",
+    "out_of_scope_changes": [],
+    "patch": null
+  },
+  "governance": {
+    "events_recorded": 29,
+    "finalized_by": "cli:finish",
+    "hooks_active": true,
+    "integrity": "not_configured",
+    "policy_sha256": "3063755907636d5a654b810e3026b45803517b3cd6fb9173a5c1713d0c05c44e"
+  },
+  "notes": [
+    "AI credits and model as shown in the chat UI to be recorded once available.",
+    "Filename order_items_order_items_quantity_constraint.feature repeats the table name -- the same naming quirk Sonnet 5 produced for this ticket in the step 8 preflight (runs/_preflight/sonnet_tkt3/). Not a rule violation (C-01 only requires snake_case); recorded as a recurring, model-independent tell worth a one-line addition to the agent file's step 5 if it keeps happening."
+  ],
+  "outputs": [
+    {
+      "ac_coverage": {
+        "1": [
+          "order_items: the up migration adds the positive quantity constraint",
+          "order_items: an inserted non-positive quantity is rejected",
+          "order_items: an updated non-positive quantity is rejected"
+        ],
+        "2": [
+          "order_items: the up migration preserves valid existing rows",
+          "order_items: the up migration refuses an existing non-positive quantity"
+        ],
+        "3": [
+          "order_items: the down migration removes the positive quantity constraint"
+        ]
+      },
+      "adds_to_specification": [
+        "constraint chk_order_items_quantity_positive",
+        "migration 0004_order_items_quantity_positive"
+      ],
+      "domain": "db",
+      "failures": [],
+      "path": "features/db/order_items_order_items_quantity_constraint.feature",
+      "scenarios": 6,
+      "sha256": "4169b46e9952a2a7e0aea9092c42ad93161cda3ed7f1c2afc3d51d1dc9703c15",
+      "snapshot": "output/order_items_order_items_quantity_constraint.feature",
+      "spec_pending": true,
+      "uncovered": [],
+      "validation": "PASS",
+      "warnings": []
+    }
+  ],
+  "policy": {
+    "allowed_write_globs": [
+      "features/db/**"
+    ],
+    "attempted_violations": [],
+    "terminal": {
+      "allowed": [
+        "python3 tools/gov.py declare --ticket TKT-3 --domains db --rationale \"The ticket tests a database column constraint and reversible migration behavior.\" --evidence \"order_items.quantity currently accepts any integer. It must be a positive integer.\" --evidence \"The constraint is reversible (down migration removes it).\"",
+        "python3 tools/gov.py validate",
+        "python3 tools/gov.py finish"
+      ],
+      "denied": []
+    },
+    "tool_calls": {
+      "allowed": 12,
+      "denied": 0,
+      "total": 12
+    }
+  },
+  "run_id": "2026-09-10T14-50-04Z_TKT-3_781a9a",
+  "schema_version": "1.0",
+  "session": {
+    "agent": {
+      "name": "feature-author",
+      "path": ".github/agents/feature-author.agent.md",
+      "sha256": "f34c8119371360a42700849097b43ae2f37c0299451131115639a9b8f5030071"
+    },
+    "client": {
+      "copilot_version": "0.64.1",
+      "producer": "copilot-agent",
+      "vscode_version": "1.136.2"
+    },
+    "created_by": "hook:UserPromptSubmit",
+    "finished_at": "2026-09-10T14:50:48Z",
+    "model": null,
+    "session_id": "a70a3c3c-9c36-48da-b4ec-525890054f93",
+    "started_at": "2026-09-10T14:50:04Z"
+  },
+  "ticket": {
+    "acceptance_criteria_count": 3,
+    "id": "TKT-3",
+    "path": "tickets/TKT-3.md",
+    "sha256": "086b049da98a6eda030f0e804ad955f8ac340afa089f5e325a5e3161dd5b1160",
+    "title": "Order items quantity constraint"
+  },
+  "validation": {
+    "attempts": [
+      {
+        "at": "2026-09-10T14:50:44Z",
+        "domain": "db",
+        "failures": [],
+        "file": "features/db/order_items_order_items_quantity_constraint.feature",
+        "new_objects": [
+          "constraint chk_order_items_quantity_positive",
+          "migration 0004_order_items_quantity_positive"
+        ],
+        "ok": true,
+        "uncovered": [],
+        "warnings": []
+      }
+    ],
+    "cross_check": {
+      "features/db/order_items_order_items_quantity_constraint.feature": {
+        "api": 32,
+        "ui": 32
+      }
+    },
+    "final": {
+      "all_pass": true,
+      "files": {
+        "features/db/order_items_order_items_quantity_constraint.feature": "PASS"
+      }
+    }
+  },
+  "verdict": {
+    "policy_held": true,
+    "reasons": [
+      "policy held, outputs valid, classification matches the expected domains"
+    ],
+    "status": "PASS"
+  }
+}

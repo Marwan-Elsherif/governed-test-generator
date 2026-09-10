@@ -12,7 +12,7 @@
 | finished | 2026-09-10T14:32:06Z (cli:finish) |
 | session id | 40d2a301-5837-43ba-9d22-570fa7c00e0b |
 | agent | feature-author `f34c81193713` |
-| model | not recorded |
+| model | GPT-5.6 Luna (Auto) |
 | client | copilot-agent 0.64.1 on VS Code 1.136.2 |
 | hooks active | yes |
 | integrity | not_configured |
@@ -61,11 +61,12 @@
 1. 2026-09-10T14:32:02Z `features/api/cart_total_get.feature` → PASS
 
 Cross-check (each output run against the other domains' rules; must fail):
-- `features/api/cart_total_get.feature`: ui: 28 failure(s), db: 22 failure(s)
+- `features/api/cart_total_get.feature`: db: 22 failure(s), ui: 28 failure(s)
 
 ## Notes
 
 - Discovery run (step 9), first live run in VS Code Copilot. Agent's RUN SUMMARY reported 'denied tool calls: 0'; the record shows 1 (tool_search, VS Code's tool-catalogue lookup, denied by the name-based classifier; harmless here, fixed after this run by allowing catalogue lookups). Model as shown in the chat UI to be recorded separately.
 - Audit regenerated after finish: the first version of `gov.py annotate` rebuilt it against a working tree that by then contained uncommitted tooling edits, which the scope check reported as out-of-scope changes. Regenerated with the tooling committed, reproducing finish-time conditions; observed facts (tool calls, denials, outputs, git) are unchanged from the original finish.
+- AI credits reported by the Copilot UI for this run: 1.1
 
 _Raw record: `audit.json`; events: `events.jsonl`; served text: `served/`_

@@ -1,0 +1,188 @@
+{
+  "$comment": "Audit record for one governed run. Checked by tools/govlib/audit.py with a small in-house validator supporting type, required, properties, items and enum. The same shape for every run regardless of which agent or model produced it, because the harness writes it, never the model.",
+  "type": "object",
+  "required": [
+    "schema_version", "run_id", "ticket", "session", "governance", "classification",
+    "conventions", "policy", "outputs", "git", "validation", "verdict", "artifacts", "notes"
+  ],
+  "properties": {
+    "schema_version": {"type": "string", "enum": ["1.0"]},
+    "run_id": {"type": "string"},
+    "ticket": {
+      "type": "object",
+      "required": ["id", "title", "path", "sha256", "acceptance_criteria_count"],
+      "properties": {
+        "id": {"type": "string"},
+        "title": {"type": ["string", "null"]},
+        "path": {"type": ["string", "null"]},
+        "sha256": {"type": ["string", "null"]},
+        "acceptance_criteria_count": {"type": ["integer", "null"]}
+      }
+    },
+    "session": {
+      "type": "object",
+      "required": ["session_id", "started_at", "finished_at", "created_by", "agent", "model"],
+      "properties": {
+        "session_id": {"type": ["string", "null"]},
+        "started_at": {"type": "string"},
+        "finished_at": {"type": "string"},
+        "created_by": {"type": "string"},
+        "agent": {
+          "type": "object",
+          "required": ["name", "path", "sha256"],
+          "properties": {
+            "name": {"type": ["string", "null"]},
+            "path": {"type": ["string", "null"]},
+            "sha256": {"type": ["string", "null"]}
+          }
+        },
+        "model": {"type": ["string", "null"]}
+      }
+    },
+    "governance": {
+      "type": "object",
+      "required": ["integrity", "hooks_active", "policy_sha256", "events_recorded", "finalized_by"],
+      "properties": {
+        "integrity": {"type": "string", "enum": ["ok", "tampered", "unsigned", "not_configured"]},
+        "hooks_active": {"type": "boolean"},
+        "policy_sha256": {"type": "string"},
+        "events_recorded": {"type": "integer"},
+        "finalized_by": {"type": "string", "enum": ["cli:finish", "hook:Stop"]}
+      }
+    },
+    "classification": {
+      "type": "object",
+      "required": ["declared_domains", "rationale", "evidence", "mentioned_not_in_scope",
+                   "declared_at", "amendments", "expected_domains", "match"],
+      "properties": {
+        "declared_domains": {"type": "array", "items": {"type": "string", "enum": ["ui", "api", "db"]}},
+        "rationale": {"type": ["string", "null"]},
+        "evidence": {"type": "array", "items": {"type": "string"}},
+        "mentioned_not_in_scope": {"type": "array", "items": {"type": "string"}},
+        "declared_at": {"type": ["string", "null"]},
+        "amendments": {"type": "array"},
+        "expected_domains": {"type": ["array", "null"], "items": {"type": "string"}},
+        "match": {"type": "string", "enum": ["exact", "superset", "subset", "mismatch", "unknown", "undeclared"]}
+      }
+    },
+    "conventions": {
+      "type": "object",
+      "required": ["served", "common_sha256", "direct_reads_denied", "leak_scan"],
+      "properties": {
+        "served": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "required": ["domain", "path", "sha256", "fingerprint", "served_at"]
+          }
+        },
+        "common_sha256": {"type": ["string", "null"]},
+        "direct_reads_denied": {"type": "integer"},
+        "leak_scan": {
+          "type": "object",
+          "required": ["responses_scanned", "hits"],
+          "properties": {
+            "responses_scanned": {"type": "integer"},
+            "hits": {"type": "array"}
+          }
+        }
+      }
+    },
+    "policy": {
+      "type": "object",
+      "required": ["allowed_write_globs", "tool_calls", "attempted_violations", "terminal"],
+      "properties": {
+        "allowed_write_globs": {"type": "array", "items": {"type": "string"}},
+        "tool_calls": {
+          "type": "object",
+          "required": ["total", "allowed", "denied"],
+          "properties": {
+            "total": {"type": "integer"},
+            "allowed": {"type": "integer"},
+            "denied": {"type": "integer"}
+          }
+        },
+        "attempted_violations": {"type": "array"},
+        "terminal": {
+          "type": "object",
+          "required": ["allowed", "denied"],
+          "properties": {
+            "allowed": {"type": "array", "items": {"type": "string"}},
+            "denied": {"type": "array", "items": {"type": "string"}}
+          }
+        }
+      }
+    },
+    "outputs": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["path", "domain", "sha256", "scenarios", "validation", "spec_pending",
+                     "adds_to_specification", "ac_coverage", "snapshot"],
+        "properties": {
+          "path": {"type": "string"},
+          "domain": {"type": ["string", "null"]},
+          "sha256": {"type": ["string", "null"]},
+          "scenarios": {"type": "integer"},
+          "validation": {"type": "string", "enum": ["PASS", "FAIL"]},
+          "spec_pending": {"type": "boolean"},
+          "adds_to_specification": {"type": "array", "items": {"type": "string"}},
+          "ac_coverage": {"type": "object"},
+          "snapshot": {"type": ["string", "null"]}
+        }
+      }
+    },
+    "git": {
+      "type": "object",
+      "required": ["head_at_start", "head_at_finish", "changed_files", "out_of_scope_changes", "patch"],
+      "properties": {
+        "head_at_start": {"type": ["string", "null"]},
+        "head_at_finish": {"type": ["string", "null"]},
+        "changed_files": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "required": ["path", "status", "domain", "in_scope"]
+          }
+        },
+        "out_of_scope_changes": {"type": "array", "items": {"type": "string"}},
+        "patch": {"type": ["string", "null"]}
+      }
+    },
+    "validation": {
+      "type": "object",
+      "required": ["attempts", "final", "cross_check"],
+      "properties": {
+        "attempts": {"type": "array"},
+        "final": {
+          "type": "object",
+          "required": ["files", "all_pass"],
+          "properties": {
+            "files": {"type": "object"},
+            "all_pass": {"type": "boolean"}
+          }
+        },
+        "cross_check": {"type": "object"}
+      }
+    },
+    "verdict": {
+      "type": "object",
+      "required": ["status", "policy_held", "reasons"],
+      "properties": {
+        "status": {"type": "string", "enum": ["PASS", "REVIEW", "FAIL"]},
+        "policy_held": {"type": "boolean"},
+        "reasons": {"type": "array", "items": {"type": "string"}}
+      }
+    },
+    "artifacts": {
+      "type": "object",
+      "required": ["events", "served", "transcript"],
+      "properties": {
+        "events": {"type": "string"},
+        "served": {"type": "string"},
+        "transcript": {"type": ["string", "null"]}
+      }
+    },
+    "notes": {"type": "array", "items": {"type": "string"}}
+  }
+}

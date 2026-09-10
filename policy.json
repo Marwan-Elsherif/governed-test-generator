@@ -1,0 +1,36 @@
+{
+  "version": 1,
+  "description": "Scope policy consumed by tools/gov.py. Paths are repo-relative globs; '**' spans directories, '*' does not. This is the file a consuming team edits to map its own layout onto the three domains.",
+  "domains": ["ui", "api", "db"],
+  "write_scope": {
+    "ui": ["features/ui/**"],
+    "api": ["features/api/**"],
+    "db": ["features/db/**"]
+  },
+  "domain_paths": [
+    {"glob": "features/ui/**", "domain": "ui"},
+    {"glob": "features/api/**", "domain": "api"},
+    {"glob": "features/db/**", "domain": "db"},
+    {"glob": "shop/ui/**", "domain": "ui"},
+    {"glob": "shop/api/**", "domain": "api"},
+    {"glob": "shop/db/**", "domain": "db"},
+    {"glob": "conventions/ui.md", "domain": "ui"},
+    {"glob": "conventions/api.md", "domain": "api"},
+    {"glob": "conventions/db.md", "domain": "db"}
+  ],
+  "protected": [
+    "conventions/**", ".github/**", ".vscode/**", "tools/**", "schemas/**",
+    "shop/**", "tickets/**", "eval/**", "runs/**", "docs/**",
+    "policy.json", "MANIFEST.json", "README.md", "WRITEUP.md",
+    "pytest.ini", "conftest.py", "requirements-dev.txt", ".gitignore"
+  ],
+  "read_denied_during_run": ["conventions/**", "runs/**", "eval/**"],
+  "tools_denied_during_run": [
+    "grep_search", "semantic_search", "search_subagent", "execution_subagent",
+    "runSubagent", "run_subagent", "fetch_webpage", "open_simple_browser",
+    "github_repo", "githubRepo"
+  ],
+  "terminal_allow": [
+    "^(?:cd\\s+\\S+\\s*&&\\s*)?python3?\\s+tools/gov\\.py\\s+(?:declare|load|validate|finish|status|steps)(?:\\s[^;&|<>`$]*)?$"
+  ]
+}

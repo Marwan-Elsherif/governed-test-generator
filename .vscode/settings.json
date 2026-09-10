@@ -1,0 +1,26 @@
+{
+  // Workspace settings for running the governed agent. Auto-approval keeps a
+  // run from stalling on confirmation prompts for the two things the agent is
+  // allowed to do; the rest closes implicit instruction channels so the only
+  // conventions that reach the model are the ones the governance CLI served.
+
+  "chat.tools.terminal.autoApprove": {
+    "python3 tools/gov.py": true,
+    "python tools/gov.py": true
+  },
+  "chat.tools.edits.autoApprove": {
+    "features/**/*.feature": true
+  },
+
+  "chat.includeApplyingInstructions": false,
+  "chat.useAgentsMdFile": false,
+  "chat.useNestedAgentsMdFiles": false,
+  "chat.useClaudeMdFile": false,
+  "chat.useAgentSkills": false,
+
+  "chat.agent.maxRequests": 40,
+
+  "files.associations": {
+    "*.feature": "gherkin"
+  }
+}

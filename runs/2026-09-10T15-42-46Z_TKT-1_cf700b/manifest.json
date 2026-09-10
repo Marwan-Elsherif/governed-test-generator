@@ -1,0 +1,82 @@
+{
+  "allowed_write_globs": [
+    "features/ui/**"
+  ],
+  "baseline": {
+    "captured_at": "2026-09-10T15:42:46Z",
+    "dirty": [
+      {
+        "path": "runs/2026-09-10T15-42-46Z_TKT-1_cf700b/events.jsonl",
+        "sha256": "bb35a5b56d5e95d705b80f22739f8cd8cdb983f2238aa0257134b1450d874884",
+        "status": "??"
+      },
+      {
+        "path": "runs/2026-09-10T15-42-46Z_TKT-1_cf700b/manifest.json",
+        "sha256": "06fb653943934697d51df8f6a884c49acaa9f967e4b1d6096768ad24fea160c9",
+        "status": "??"
+      }
+    ],
+    "head": "75970ad281c966dbc80801b4d549c30b774b789e"
+  },
+  "classification": {
+    "amendments": [],
+    "declared_at": "2026-09-10T15:42:58Z",
+    "domains": [
+      "ui"
+    ],
+    "evidence": [
+      "Category filter shows only products in the selected category.",
+      "Applying a filter does not reload the page; the URL reflects the active filters."
+    ],
+    "mentioned_not_in_scope": [],
+    "rationale": "The ticket is about shopper-facing product listing filters and URL behavior, which are UI concerns."
+  },
+  "conventions_served": [
+    {
+      "domain": "ui",
+      "fingerprint": "3f9a4194",
+      "path": "conventions/ui.md",
+      "served_at": "2026-09-10T15:42:58Z",
+      "sha256": "3f9a4194adc65549b5b3d68fb812c88de1deefc25689f959ff34575c6d23d1fd"
+    }
+  ],
+  "created_at": "2026-09-10T15:42:46Z",
+  "created_by": "hook:UserPromptSubmit",
+  "finished_at": "2026-09-10T15:43:34Z",
+  "hooks_active": true,
+  "notes": [
+    "Real result, verified independently: classification ui only, exact match. 8 tool calls, zero denials, zero out-of-scope changes. Five scenarios covering all five acceptance criteria, correctly spec-pending for the new filter controls.",
+    "Found by reading the output, not by the validator: this run's frozen adds_to_specification lists 'Home & Garden' and 'Kitchen' as new page elements alongside the genuinely new controls (Category filter, Minimum/Maximum price field). Those two are category VALUES named in Then-step prose ('...products in the \"Home & Garden\" category'), not controls -- the element-extraction regex matched the same the \"...\" shape purely by coincidence of English wording, since it scanned every step rather than only the When steps where this domain's own grammar (UI-06/UI-07) says a real element reference can appear. It did not cause a false failure (the file was already correctly @spec-pending for the real new controls), only an inaccurate detail in what the audit reports as newly added.",
+    "Fixed afterward: element extraction (govlib/rules_ui.py, used by UI-08 and target_state) now scans only When steps. Re-validating features/ui/product_search_filters.feature today reports exactly the three real controls under adds_to_specification, nothing else; verdict and outputs on this frozen run are left exactly as they were at finish time, per the same frozen-facts principle used for the earlier findings on TKT-2 and TKT-6."
+  ],
+  "prompts": [
+    {
+      "at": "2026-09-10T15:42:47Z",
+      "text": "/run-ticket TKT-1"
+    }
+  ],
+  "run_id": "2026-09-10T15-42-46Z_TKT-1_cf700b",
+  "schema": "gov-run-manifest/1",
+  "session_id": "6d13da20-3339-474f-b2d4-c8c5fc485896",
+  "status": "finished",
+  "ticket_id": "TKT-1",
+  "updated_at": "2026-09-10T15:47:44Z",
+  "validations": [
+    {
+      "at": "2026-09-10T15:43:26Z",
+      "domain": "ui",
+      "failures": [],
+      "file": "features/ui/product_search_filters.feature",
+      "new_objects": [
+        "Product Listing: Category filter",
+        "Product Listing: Home & Garden",
+        "Product Listing: Kitchen",
+        "Product Listing: Maximum price field",
+        "Product Listing: Minimum price field"
+      ],
+      "ok": true,
+      "uncovered": [],
+      "warnings": []
+    }
+  ]
+}

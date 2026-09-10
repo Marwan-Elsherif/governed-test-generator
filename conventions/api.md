@@ -45,16 +45,19 @@ The error envelope, the code catalogue and the 400/404/422 rule are in
 - **API-09 Money.** Any value asserted for `subtotal`, `tax`, `total`, `price`,
   `unitPrice` or `lineTotal` is a quoted string with exactly two decimals:
   `"19.99"`, `"0.00"`. Never a bare number.
-- **API-10 Timing.** A scenario that asserts a response time carries `@nfr`
-  and states the data volume in a `Given` step. A scenario tagged `@nfr`
-  asserts a response time with `And the response time is under <n> ms`.
-- **API-11 Fixtures.** State is arranged with `Given` steps in the form
-  `Given a <thing> exists with id "<uuid>" ...` or
-  `Given no <thing> exists with id "<uuid>"`. Every identifier literal is from
-  the reserved test range `00000000-0000-4000-8000-XXXXXXXXXXXX`.
+- **API-10 Timing.** A scenario asserting a response time carries `@nfr`, and a
+  scenario tagged `@nfr` asserts one, with `the response time is under <n> ms`.
+  Such a scenario also states the data volume in a `Given` step containing the
+  count, a number of at least three digits, so the figure is never implied.
+- **API-11 Fixtures.** A `Given` step naming an entity by id takes the form
+  `Given a <thing> exists with id "<uuid>"`, optionally continuing with further
+  detail, or `Given no <thing> exists with id "<uuid>"`. Other `Given` steps,
+  such as a volume statement, are free text. Every UUID literal anywhere in the
+  file is from the reserved test range `00000000-0000-4000-8000-XXXXXXXXXXXX`.
 - **API-12 Forbidden terms.** `click`, `button`, `screen`, `shopper`,
-  `i see`, `i should see`, `the page`, `table`, `row`, `rows`, `column`,
-  `insert into`, `select *`, `constraint`, `database`, `schema`.
+  `i see`, `i should see`, `the page shows`, `table`, `row`, `rows`, `column`,
+  `insert into`, `select *`, `constraint`, `database`, `schema`. The bare word
+  page is not forbidden: pagination needs it.
 
 ## Target state (C-07 for api)
 

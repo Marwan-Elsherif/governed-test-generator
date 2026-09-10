@@ -55,8 +55,8 @@ patterns and the test-data policy are in `shop/db/README.md`.
   `no index "<name>" exists on "<table>"`;
   `the row count of "<table>" is <n>`;
   `the rows in "<table>" are unchanged`.
-- **DB-09 Scenario names.** `<table>: <expectation>`, for example
-  `Scenario: order_items: a zero quantity is rejected`.
+- **DB-09 Scenario names.** `<table>: <expectation>`, where `<table>` is the
+  feature's table, for example `Scenario: order_items: a zero quantity is rejected`.
 - **DB-10 Forbidden terms.** `http`, `status code`, `response status`,
   `endpoint`, `request`, `response`, `json`, `click`, `button`, `shopper`,
   `i should see`, `the page`, `screen`.

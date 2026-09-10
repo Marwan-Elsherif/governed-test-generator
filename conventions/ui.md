@@ -42,7 +42,7 @@ already hold, such as in-page updates and the URL reflecting the view, are in
   on, unless the feature is `@spec-pending` (C-07). Free text is written as
   `the text "..."` and is not checked against the registry.
 - **UI-09 Forbidden terms.** `http`, `status code`, `endpoint`, `json`, `sql`,
-  `table`, `row`, `rows`, `insert`, `select`, `migration`, `constraint`,
+  `table`, `row`, `rows`, `insert`, `migration`, `constraint`,
   `index`, `database`, `xpath`, `css`, `200`, `201`, `204`, `400`, `404`,
   `422`, `500`. The words URL, reload and query are not forbidden: a shopper
   can see them.

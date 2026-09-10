@@ -310,10 +310,17 @@ def _decide_read(paths: tuple[str, ...], run: RunView, policy: Policy) -> Decisi
                                 "`python3 tools/gov.py declare` (or `load`) for the declared "
                                 "domains, so that what was loaded is recorded", "read", paths,
                                 violation=True)
+            if p.startswith("runs/") or p.startswith("eval/"):
+                return Decision(False,
+                                f"{p} is not readable during a governed run (run records and "
+                                "evaluation data are for the audit, not the agent)", "read", paths,
+                                violation=True)
             return Decision(False,
-                            f"{p} is not readable during a governed run (run records and "
-                            "evaluation data are for the audit, not the agent)", "read", paths,
-                            violation=True)
+                            f"{p} is not readable during a governed run: the governance tooling, "
+                            "its tests, internal design notes, the policy file and the original "
+                            "brief all contain rule examples and reasoning for every domain, not "
+                            "only the ones declared for this run, and are not needed to complete "
+                            "the ticket", "read", paths, violation=True)
         domain = policy.domain_of(p)
         if (p.startswith("features/") and domain and run.declared
                 and domain not in run.domains):

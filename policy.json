@@ -22,9 +22,14 @@
     "conventions/**", ".github/**", ".vscode/**", "tools/**", "schemas/**",
     "shop/**", "tickets/**", "eval/**", "runs/**", "docs/**",
     "policy.json", "MANIFEST.json", "README.md", "WRITEUP.md",
-    "pytest.ini", "conftest.py", "requirements-dev.txt", ".gitignore"
+    "pytest.ini", "conftest.py", "requirements-dev.txt", ".gitignore",
+    "technical_challenge 4.md"
   ],
-  "read_denied_during_run": ["conventions/**", "runs/**", "eval/**"],
+  "read_denied_during_run": [
+    "conventions/**", "runs/**", "eval/**",
+    "tools/**", "docs/**", "schemas/**",
+    "policy.json", "MANIFEST.json", "technical_challenge 4.md"
+  ],
   "tools_denied_during_run": [
     "grep_search", "semantic_search", "search_subagent", "execution_subagent",
     "runSubagent", "run_subagent", "fetch_webpage", "open_simple_browser",

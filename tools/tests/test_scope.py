@@ -161,6 +161,35 @@ def test_answer_key_and_run_records_are_unreadable_during_a_run():
     assert not decide("read_file", {"filePath": "runs/x/served/api.md"}, API_RUN).allow
 
 
+@pytest.mark.parametrize("path", [
+    "tools/tests/test_validate.py", "tools/govlib/rules_ui.py", "tools/gov.py",
+    "docs/PLAN.md", "schemas/audit.schema.json", "policy.json", "MANIFEST.json",
+    "technical_challenge 4.md",
+])
+def test_governance_tooling_and_internal_notes_are_unreadable_during_a_run(path):
+    """Real leak found on TKT-5's live run: the agent read
+    tools/tests/test_validate.py, which was not denied (only conventions/
+    runs/ eval/ were), and that file alone contains rule IDs, forbidden
+    terms and worked mutation examples for all three domains regardless
+    of what is declared for the run -- exactly the kind of cross-domain
+    information the design exists to keep out, just through a channel
+    the original threat model did not name. The leak-scan didn't catch
+    it either: it only looks for the served-conventions marker text and
+    fingerprint, not general domain content, so a file like this slips
+    through undetected. Checked and confirmed separately that no real
+    run ever read docs/PLAN.md, which holds the actual expected-domain
+    answers; this closes the channel going forward regardless."""
+    d = decide("read_file", {"filePath": path}, API_RUN)
+    assert not d.allow and d.violation, f"{path} should be denied and flagged as a violation"
+
+
+@pytest.mark.parametrize("path", [
+    "tools/gov.py", "docs/PLAN.md", "policy.json", "technical_challenge 4.md",
+])
+def test_governance_tooling_reads_are_unrestricted_outside_a_run(path):
+    assert decide("read_file", {"filePath": path}, NO_RUN).allow
+
+
 def test_other_domains_exemplars_are_unreadable_but_own_are_fine():
     assert not decide("read_file", {"filePath": "features/db/products_price_check.feature"}, API_RUN).allow
     assert decide("read_file", {"filePath": "features/api/products_get.feature"}, API_RUN).allow

@@ -1,0 +1,30 @@
+{
+  "schema_version": 1,
+  "tickets": {
+    "TKT-1": {
+      "domains": ["ui"],
+      "rationale": "All five acceptance criteria describe storefront listing behaviour observable by a shopper: filtering, combining filters, the URL reflecting filter state, and clearing filters restoring the listing. No endpoint or schema is named or implied as new or changed."
+    },
+    "TKT-2": {
+      "domains": ["api"],
+      "rationale": "Every acceptance criterion is a request/response contract for a new endpoint, GET /cart/{id}/total: status codes 200/404/400, response body shape, and a computed value (tax at 21%). No UI element and no DB constraint or migration is named."
+    },
+    "TKT-3": {
+      "domains": ["db"],
+      "rationale": "All three acceptance criteria concern a column constraint and its migration: rejecting invalid inserts/updates, migration safety against existing rows, and reversibility via a down migration. This is schema behaviour, not a request/response contract or a user journey."
+    },
+    "TKT-4": {
+      "domains": ["ui", "api"],
+      "rationale": "AC1 and AC2 are POST /orders request/response contracts (201 plus orderNumber; 422 on an empty cart with no order created), which is api. AC3 and AC4 describe what the shopper sees on the confirmation and checkout pages, which is ui. No new table or constraint is described."
+    },
+    "TKT-5": {
+      "domains": ["api", "db"],
+      "rationale": "AC1 (an index exists on orders.customer_id) is schema-level, db. AC2 (same results before and after the index), AC3 (pagination contract) and AC4 (response time) are all verified by calling GET /orders?customer={id} and inspecting the response, which is api. No UI page is mentioned."
+    },
+    "TKT-6": {
+      "domains": ["api"],
+      "rationale": "All three acceptance criteria are DELETE/GET /cart/{id} status-code contracts. The description's mention of the storefront is scene-setting, not a UI acceptance criterion. The Background sentence about stale carts explains why the ticket exists but is not itself tested by any acceptance criterion: nothing asks to verify a cleanup migration, a row count, or a reporting fix. Scope follows acceptance criteria, not the description.",
+      "mentioned_not_in_scope": ["db"]
+    }
+  }
+}

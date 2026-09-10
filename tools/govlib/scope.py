@@ -63,6 +63,14 @@ SUBAGENT_TOOLS = frozenset({
 })
 WEB_TOOLS = frozenset({"fetch_webpage", "copilot_fetchwebpage", "fetch", "open_simple_browser",
                        "opensimplebrowser", "webfetch", "websearch"})
+# VS Code lazily exposes tools; the model looks them up by description with a
+# catalogue tool. Observed live as `tool_search` (query: "Run the governed
+# repository CLI command in the terminal synchronously"). It searches the tool
+# list, not the workspace, so it is not a leakage channel and must not be
+# denied: if a needed tool were only discoverable this way, denying it would
+# block the whole run.
+META_TOOLS = frozenset({"tool_search", "toolsearch", "search_tools", "list_tools",
+                        "get_tools", "discover_tools", "tool_lookup"})
 TERMINAL_TOOLS = frozenset({
     "run_in_terminal", "runinterminal", "runterminalcommand", "run_terminal_command",
     "execute", "bash", "shell", "create_and_run_task", "run_task", "runtask",
@@ -118,6 +126,7 @@ def classify_tool(name: str) -> str:
     n = (name or "").strip().lower()
     n_compact = n.replace("-", "_")
     for category, names in (
+        ("meta", META_TOOLS),
         ("write", WRITE_TOOLS), ("terminal", TERMINAL_TOOLS), ("search", SEARCH_TOOLS),
         ("subagent", SUBAGENT_TOOLS), ("web", WEB_TOOLS), ("read", READ_TOOLS),
     ):
@@ -226,6 +235,9 @@ def decide(
     category = classify_tool(tool_name)
     paths = extract_paths(tool_name, tool_input, cwd, repo_root) if category != "terminal" else ()
 
+    if category == "meta":
+        return Decision(True, "tool-catalogue lookup; not a file or workspace operation",
+                        category, ())
     if category == "write":
         return _decide_write(paths, run, policy)
     if category == "terminal":

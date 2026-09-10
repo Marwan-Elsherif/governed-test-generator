@@ -36,7 +36,8 @@
             "sha256": {"type": ["string", "null"]}
           }
         },
-        "model": {"type": ["string", "null"]}
+        "model": {"type": ["string", "null"]},
+        "client": {"type": ["object", "null"]}
       }
     },
     "governance": {

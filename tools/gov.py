@@ -139,11 +139,21 @@ def hook_main() -> int:
             tool = str(data.get("tool_name") or "")
             tool_input = data.get("tool_input") or {}
             response = data.get("tool_response")
-            text = response if isinstance(response, str) else json.dumps(response)[:200000]
+            text = response if isinstance(response, str) else (
+                json.dumps(response)[:200000] if response else "")
+            scanned_from = "tool_response" if text else "none"
+            # Observed live: VS Code sends an empty tool_response for read_file,
+            # and its transcript records only success/failure. A leak scan that
+            # trusts tool_response is blind on exactly the calls that matter, so
+            # for read-like tools the hook reads the file it named and scans that.
+            if not text and scope.classify_tool(tool) == "read":
+                text = _read_for_scan(scope.extract_paths(tool, tool_input, cwd, REPO_ROOT))
+                scanned_from = "file" if text else "none"
             run.log("tool_result", tool=tool, tool_use_id=data.get("tool_use_id"),
-                    response_chars=len(text or ""), preview=(text or "")[:200])
+                    response_chars=len(text), scanned_from=scanned_from,
+                    preview=text[:200])
             _snapshot_write(run, tool, tool_input)
-            _leak_scan(run, tool, text or "")
+            _leak_scan(run, tool, text)
             return 0
 
         if event == "Stop":
@@ -207,6 +217,22 @@ def _snapshot_write(run: runstate.Run, tool: str, tool_input) -> None:
     body = content if isinstance(content, str) else (
         target.read_text(encoding="utf-8", errors="replace") if target.is_file() else "")
     (attempts / f"{n:03d}_{tool}_{Path(paths[0]).name}").write_text(body, encoding="utf-8")
+
+
+def _read_for_scan(paths) -> str:
+    """Contents of the files a read tool named, for the leak scan. Paths the
+    scope module marked '<outside>' are absolute paths beyond the repository
+    (VS Code spills long terminal output to its own storage and the model
+    reads it back from there); they are scanned too when readable."""
+    chunks: list[str] = []
+    for rel in paths:
+        path = Path(rel[len("<outside>"):]) if rel.startswith("<outside>") else REPO_ROOT / rel
+        try:
+            if path.is_file() and path.stat().st_size <= 2_000_000:
+                chunks.append(path.read_text(encoding="utf-8", errors="replace"))
+        except OSError:
+            continue
+    return "\n".join(chunks)
 
 
 def _leak_scan(run: runstate.Run, tool: str, text: str) -> None:
@@ -409,7 +435,8 @@ def finish(run: runstate.Run | None = None, *, finalized_by: str = "cli:finish",
     run.manifest["finished_at"] = runstate.utcnow()
     run.log("finish", finalized_by=finalized_by)
 
-    record = A.build(REPO_ROOT, run, policy, shop, ticket, expected, finalized_by=finalized_by)
+    record = A.build(REPO_ROOT, run, policy, shop, ticket, expected, finalized_by=finalized_by,
+                     model=run.manifest.get("model"))
     errors = A.check_schema(record, A.load_schema(REPO_ROOT))
     if errors:
         run.log("audit_schema_errors", errors=errors)
@@ -432,6 +459,42 @@ def finish(run: runstate.Run | None = None, *, finalized_by: str = "cli:finish",
             print(f"  - {r}")
         print(f"Audit: runs/{run.id}/audit.md")
     return 0 if not errors else 1
+
+
+def annotate(args) -> int:
+    """Record facts the hooks cannot observe (which model the chat UI showed,
+    a reviewer's note) on a finished run.
+
+    This patches the existing audit record; it never rebuilds it. A first
+    version rebuilt via A.build(), which recomputes the git scope check
+    against the working tree *at annotate time*, so unrelated edits made
+    after the run (in that case, this very tooling) were reported as
+    out-of-scope changes and flipped a PASS to FAIL. The observed facts of a
+    finished run are frozen at finish; annotation may only add to them."""
+    run = runstate.load_run(REPO_ROOT, args.run) if args.run else runstate.last_run(REPO_ROOT)
+    if run is None:
+        return fail("no run to annotate")
+    if args.model:
+        run.manifest["model"] = args.model
+        run.log("annotate", model=args.model)
+    for note in args.note or []:
+        run.manifest.setdefault("notes", []).append(note)
+        run.log("annotate", note=note)
+    run.save()
+    audit_path = run.root / "audit.json"
+    if audit_path.exists():
+        record = json.loads(audit_path.read_text(encoding="utf-8"))
+        if args.model:
+            record["session"]["model"] = args.model
+        record["session"]["client"] = A._client_info(run)
+        record["notes"] = list(run.manifest.get("notes", []))
+        audit_path.write_text(json.dumps(record, indent=2, sort_keys=True) + "\n",
+                              encoding="utf-8")
+        (run.root / "audit.md").write_text(A.render_markdown(record), encoding="utf-8")
+        A.write_index(REPO_ROOT)
+    print(f"annotated {run.id}: model={run.manifest.get('model')!r}, "
+          f"notes={len(run.manifest.get('notes', []))}")
+    return 0
 
 
 # ---------------------------------------------------------------------------
@@ -517,6 +580,11 @@ def main(argv: list[str] | None = None) -> int:
     sub.add_parser("status")
     sub.add_parser("report")
 
+    p = sub.add_parser("annotate")
+    p.add_argument("--run", help="run id; defaults to the most recent run")
+    p.add_argument("--model", help="model as shown in the chat UI (hooks cannot observe it)")
+    p.add_argument("--note", action="append")
+
     p = sub.add_parser("new-ticket")
     p.add_argument("id")
     p.add_argument("--title", required=True)
@@ -540,6 +608,8 @@ def main(argv: list[str] | None = None) -> int:
         return status(args)
     if args.command == "report":
         return report(args)
+    if args.command == "annotate":
+        return annotate(args)
     if args.command == "new-ticket":
         return new_ticket(args)
     return 2

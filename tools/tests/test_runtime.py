@@ -226,3 +226,53 @@ Feature: DB order_items - quantity must be positive
         assert note is not None, second_audit["verdict"]["reasons"]
         assert rel in note
         assert "not counted as this run's output" in note
+
+
+def test_annotate_never_recomputes_a_finished_runs_facts():
+    """Regression for a bug found on the first live run: `annotate` rebuilt
+    the audit, which recomputed the git scope check against the working
+    tree at annotate time. Unrelated edits made after the run (the
+    governance tooling itself) were then reported as out-of-scope changes
+    and the live run's PASS became a FAIL. Annotation must only add the
+    model, client and notes to the frozen record."""
+    with tempfile.TemporaryDirectory(prefix="gov-annotate-test-") as tmp:
+        import re
+        import simulate_run as S
+
+        root = S.make_copy(Path(tmp) / "repo")
+        gov = [sys.executable, str(root / "tools" / "gov.py")]
+
+        def cli(*args):
+            return subprocess.run(gov + list(args), cwd=root, capture_output=True, text=True)
+
+        out = cli("declare", "--ticket", "TKT-2", "--domains", "api", "--rationale", "r",
+                  "--evidence", "e").stdout
+        fp = re.search(r"fingerprint: ([0-9a-f]{8})", out).group(1)
+        rel = "features/api/cart_total_get.feature"
+        (root / rel).write_text(S.GOOD_FEATURE.format(
+            header=f"# gov: ticket=TKT-2 domain=api conventions=api@{fp}"), encoding="utf-8")
+        assert cli("validate").returncode == 0
+        assert cli("finish").returncode == 0
+        run_dir = next(d for d in (root / "runs").iterdir() if d.is_dir())
+        before = json.loads((run_dir / "audit.json").read_text())
+        assert before["verdict"]["status"] == "PASS"
+
+        # Unrelated edits after the run, as would happen when tooling is
+        # improved between runs.
+        (root / "README.md").write_text("changed later\n", encoding="utf-8")
+        (root / "tools" / "gov.py").write_text(
+            (root / "tools" / "gov.py").read_text() + "\n# touched\n", encoding="utf-8")
+
+        assert cli("annotate", "--run", run_dir.name, "--model", "Auto (GPT-5 mini)",
+                   "--note", "reviewed").returncode == 0
+        after = json.loads((run_dir / "audit.json").read_text())
+
+        assert after["verdict"] == before["verdict"]
+        assert after["git"] == before["git"]
+        assert after["outputs"] == before["outputs"]
+        assert after["policy"] == before["policy"]
+        assert after["governance"]["finalized_by"] == before["governance"]["finalized_by"]
+        assert after["session"]["model"] == "Auto (GPT-5 mini)"
+        assert after["notes"] == ["reviewed"]
+        md = (run_dir / "audit.md").read_text()
+        assert "Auto (GPT-5 mini)" in md and "PASS" in md

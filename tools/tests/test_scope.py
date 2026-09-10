@@ -39,6 +39,7 @@ def decide(tool, tool_input, run):
     ("grep_search", "search"), ("semantic_search", "search"),
     ("runSubagent", "subagent"), ("execution_subagent", "subagent"),
     ("fetch_webpage", "web"), ("manage_todo_list", "read"), ("frobnicate", "unknown"),
+    ("tool_search", "meta"),
 ])
 def test_classify_tool(name, category):
     assert scope.classify_tool(name) == category
@@ -186,6 +187,16 @@ def test_shop_and_tickets_are_readable_during_a_run():
 def test_leak_channels_are_closed_during_a_run(tool, tool_input):
     assert not decide(tool, tool_input, API_RUN).allow
     assert decide(tool, tool_input, NO_RUN).allow
+
+
+def test_tool_catalogue_lookup_is_allowed_during_a_run():
+    """Observed in the first live VS Code run: the model called `tool_search`
+    with the query "Run the governed repository CLI command in the terminal
+    synchronously" to find the terminal tool. The name-based heuristic
+    classified it as a codebase search and denied it. It searches the tool
+    catalogue, not the workspace, so it must be allowed."""
+    d = decide("tool_search", {"query": "run a command in the terminal"}, API_RUN)
+    assert d.allow and d.category == "meta" and not d.violation
 
 
 def test_unknown_tool_with_paths_fails_closed_during_a_run():

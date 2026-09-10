@@ -17,3 +17,7 @@ docs/PLAN.md
 # Regenerable: python3 tools/simulate_run.py --keep
 runs/_simulation_last/
 runs/.hook_errors.log
+
+# Transient run-state pointers, rewritten by every run
+runs/.current
+runs/.last

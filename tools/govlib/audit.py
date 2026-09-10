@@ -98,6 +98,28 @@ def _sha(path: Path) -> str | None:
     return hashlib.sha256(path.read_bytes()).hexdigest() if path.is_file() else None
 
 
+def _client_info(run: Run) -> dict | None:
+    """Producer and versions from the transcript VS Code hands the Stop hook
+    (its `session.start` record). The transcript format is documented as
+    unstable, so this is best effort and absent when unreadable."""
+    for path in run.root.glob("transcript.raw.*"):
+        try:
+            for line in path.read_text(encoding="utf-8", errors="replace").splitlines():
+                if not line.strip():
+                    continue
+                rec = json.loads(line)
+                if rec.get("type") == "session.start":
+                    d = rec.get("data", {})
+                    return {
+                        "producer": d.get("producer"),
+                        "copilot_version": d.get("copilotVersion"),
+                        "vscode_version": d.get("vscodeVersion"),
+                    }
+        except (OSError, ValueError):
+            continue
+    return None
+
+
 def _tool_stats(events: list[dict]) -> tuple[dict, list[dict], dict, int, dict]:
     calls = [e for e in events if e.get("event") == "tool_call"]
     allowed = [e for e in calls if e.get("decision") == "allow"]
@@ -263,6 +285,7 @@ def build(
 
     agent_path = repo_root / AGENT_FILE
     transcript = next((p.name for p in run.root.glob("transcript.*")), None)
+    client = _client_info(run)
 
     return {
         "schema_version": SCHEMA_VERSION,
@@ -285,6 +308,7 @@ def build(
                 "sha256": _sha(agent_path),
             },
             "model": model,
+            "client": client,
         },
         "governance": {
             "integrity": integrity,
@@ -367,6 +391,10 @@ def render_markdown(audit: dict) -> str:
     L.append(f"| session id | {s['session_id'] or 'n/a'} |")
     L.append(f"| agent | {s['agent']['name'] or 'n/a'} `{(s['agent']['sha256'] or '')[:12]}` |")
     L.append(f"| model | {s['model'] or 'not recorded'} |")
+    if s.get("client"):
+        c = s["client"]
+        L.append(f"| client | {c.get('producer')} {c.get('copilot_version')} on VS Code "
+                 f"{c.get('vscode_version')} |")
     L.append(f"| hooks active | {_yes(g['hooks_active'])} |")
     L.append(f"| integrity | {g['integrity']} |")
     L.append(f"| events recorded | {g['events_recorded']} |")

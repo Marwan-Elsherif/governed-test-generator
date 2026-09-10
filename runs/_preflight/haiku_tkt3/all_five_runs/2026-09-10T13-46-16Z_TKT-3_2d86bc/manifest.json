@@ -1,0 +1,85 @@
+{
+  "allowed_write_globs": [
+    "features/db/**"
+  ],
+  "baseline": {
+    "captured_at": "2026-09-10T13:46:16Z",
+    "dirty": [
+      {
+        "path": "features/db/order_items_quantity_constraint.feature",
+        "sha256": "003702e5760f0264bb2727040c9d8cba03789d93f53305434f810c3f3b5eea62",
+        "status": "A "
+      },
+      {
+        "path": "runs/.current",
+        "sha256": "abaa1e21d975d1258642ed12ef817a546ae46afdba3a4de3454d0c485369c726",
+        "status": "??"
+      },
+      {
+        "path": "runs/.last",
+        "sha256": "abaa1e21d975d1258642ed12ef817a546ae46afdba3a4de3454d0c485369c726",
+        "status": "??"
+      },
+      {
+        "path": "runs/2026-09-10T13-46-16Z_TKT-3_2d86bc/events.jsonl",
+        "sha256": "8dd5fcc1c7fa24676f2b4b90b89ec7509d6b57eba28eabe4173a086e361a356d",
+        "status": "??"
+      },
+      {
+        "path": "runs/2026-09-10T13-46-16Z_TKT-3_2d86bc/manifest.json",
+        "sha256": "6ff7131304500fb36e7f9fdd03d561eedf8ff46bc45756b2bba50ff420847c31",
+        "status": "??"
+      }
+    ],
+    "head": "962c35c7dfcd6c6d6d66461691dff147cbcb3c12"
+  },
+  "classification": {
+    "amendments": [],
+    "declared_at": "2026-09-10T13:46:16Z",
+    "domains": [
+      "db"
+    ],
+    "evidence": [
+      "order_items.quantity currently accepts any integer. It must be a positive integer.",
+      "Inserting or updating an order_items row with quantity \u2264 0 is rejected."
+    ],
+    "mentioned_not_in_scope": [],
+    "rationale": "The ticket requires testing a database constraint on the order_items table quantity column, including migration validation and reversibility."
+  },
+  "conventions_served": [
+    {
+      "domain": "db",
+      "fingerprint": "3d7d6a02",
+      "path": "conventions/db.md",
+      "served_at": "2026-09-10T13:46:16Z",
+      "sha256": "3d7d6a02d6d004f9f05f56d2e5d1bb4e5d3088904537b5fe7b4ddf4b8c3bc75e"
+    }
+  ],
+  "created_at": "2026-09-10T13:46:16Z",
+  "created_by": "cli:declare",
+  "finished_at": "2026-09-10T13:46:49Z",
+  "hooks_active": false,
+  "notes": [],
+  "prompts": [],
+  "run_id": "2026-09-10T13-46-16Z_TKT-3_2d86bc",
+  "schema": "gov-run-manifest/1",
+  "session_id": null,
+  "status": "finished",
+  "ticket_id": "TKT-3",
+  "updated_at": "2026-09-10T13:46:50Z",
+  "validations": [
+    {
+      "at": "2026-09-10T13:46:46Z",
+      "domain": "db",
+      "failures": [],
+      "file": "features/db/order_items_quantity_constraint.feature",
+      "new_objects": [
+        "constraint chk_order_items_quantity_positive",
+        "migration 0004_order_items_quantity_constraint"
+      ],
+      "ok": true,
+      "uncovered": [],
+      "warnings": []
+    }
+  ]
+}

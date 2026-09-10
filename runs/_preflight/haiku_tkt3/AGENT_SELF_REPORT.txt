@@ -1,0 +1,1 @@
+(No RUN SUMMARY was returned by this agent; it stopped after its final tool call without producing the closing block its instructions require. See docs/PLAN.md and REPORT.md for the reconstructed sequence.)

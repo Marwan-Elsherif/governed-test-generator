@@ -1,0 +1,122 @@
+{
+  "artifacts": {
+    "events": "events.jsonl",
+    "served": "served/",
+    "transcript": null
+  },
+  "classification": {
+    "amendments": [],
+    "declared_at": "2026-09-10T13:49:21Z",
+    "declared_domains": [
+      "db"
+    ],
+    "evidence": [
+      "order_items.quantity currently accepts any integer. It must be a positive integer.",
+      "Inserting or updating an order_items row with quantity \u2264 0 is rejected."
+    ],
+    "expected_domains": [
+      "db"
+    ],
+    "match": "exact",
+    "mentioned_not_in_scope": [],
+    "rationale": "Database constraint on order_items.quantity requiring positive values."
+  },
+  "conventions": {
+    "common_sha256": "99ec37430b2787afcc2eccf93212fc4b4ad6377815a12b2d47c2868749877992",
+    "direct_reads_denied": 0,
+    "leak_scan": {
+      "hits": [],
+      "responses_scanned": 0
+    },
+    "served": [
+      {
+        "domain": "db",
+        "fingerprint": "3d7d6a02",
+        "path": "conventions/db.md",
+        "served_at": "2026-09-10T13:49:21Z",
+        "sha256": "3d7d6a02d6d004f9f05f56d2e5d1bb4e5d3088904537b5fe7b4ddf4b8c3bc75e"
+      }
+    ]
+  },
+  "git": {
+    "changed_files": [],
+    "head_at_finish": "962c35c7dfcd6c6d6d66461691dff147cbcb3c12",
+    "head_at_start": "962c35c7dfcd6c6d6d66461691dff147cbcb3c12",
+    "out_of_scope_changes": [],
+    "patch": "git/diff.patch"
+  },
+  "governance": {
+    "events_recorded": 7,
+    "finalized_by": "cli:finish",
+    "hooks_active": false,
+    "integrity": "not_configured",
+    "policy_sha256": "3063755907636d5a654b810e3026b45803517b3cd6fb9173a5c1713d0c05c44e"
+  },
+  "notes": [],
+  "outputs": [],
+  "policy": {
+    "allowed_write_globs": [
+      "features/db/**"
+    ],
+    "attempted_violations": [],
+    "terminal": {
+      "allowed": [],
+      "denied": []
+    },
+    "tool_calls": {
+      "allowed": 0,
+      "denied": 0,
+      "total": 0
+    }
+  },
+  "run_id": "2026-09-10T13-49-21Z_TKT-3_5b2f1f",
+  "schema_version": "1.0",
+  "session": {
+    "agent": {
+      "name": "feature-author",
+      "path": ".github/agents/feature-author.agent.md",
+      "sha256": "f34c8119371360a42700849097b43ae2f37c0299451131115639a9b8f5030071"
+    },
+    "created_by": "cli:declare",
+    "finished_at": "2026-09-10T13:49:55Z",
+    "model": null,
+    "session_id": null,
+    "started_at": "2026-09-10T13:49:21Z"
+  },
+  "ticket": {
+    "acceptance_criteria_count": 3,
+    "id": "TKT-3",
+    "path": "tickets/TKT-3.md",
+    "sha256": "086b049da98a6eda030f0e804ad955f8ac340afa089f5e325a5e3161dd5b1160",
+    "title": "Order items quantity constraint"
+  },
+  "validation": {
+    "attempts": [
+      {
+        "at": "2026-09-10T13:49:55Z",
+        "domain": "db",
+        "failures": [],
+        "file": "features/db/order_items_quantity_constraint.feature",
+        "new_objects": [
+          "constraint chk_order_items_quantity_positive",
+          "migration 0004_order_items_quantity_constraint"
+        ],
+        "ok": true,
+        "uncovered": [],
+        "warnings": []
+      }
+    ],
+    "cross_check": {},
+    "final": {
+      "all_pass": false,
+      "files": {}
+    }
+  },
+  "verdict": {
+    "policy_held": true,
+    "reasons": [
+      "no feature file was produced inside the declared scope"
+    ],
+    "status": "FAIL"
+  }
+}

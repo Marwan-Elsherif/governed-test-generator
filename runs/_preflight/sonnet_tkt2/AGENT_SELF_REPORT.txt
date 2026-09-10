@@ -1,0 +1,8 @@
+RUN SUMMARY
+ticket: TKT-2
+domains: api
+files: features/api/cart_total_get.feature
+validation: PASS
+denied tool calls: 0
+spec-pending: GET /cart/{id}/total (not present in shop/api/openapi.yaml, which defines only GET /cart/{id}; feature tagged @spec-pending, confirmed by validate's "adds to the specification: GET /cart/{id}/total")
+discrepancies: none

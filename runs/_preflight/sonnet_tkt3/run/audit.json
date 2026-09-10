@@ -1,0 +1,167 @@
+{
+  "artifacts": {
+    "events": "events.jsonl",
+    "served": "served/",
+    "transcript": null
+  },
+  "classification": {
+    "amendments": [],
+    "declared_at": "2026-09-10T13:44:51Z",
+    "declared_domains": [
+      "db"
+    ],
+    "evidence": [
+      "order_items.quantity currently accepts any integer. It must be a positive integer.",
+      "the migration fails if any existing row would violate the constraint."
+    ],
+    "expected_domains": [
+      "db"
+    ],
+    "match": "exact",
+    "mentioned_not_in_scope": [],
+    "rationale": "The ticket is entirely about a database column constraint and its migration on order_items; no UI page or API endpoint is referenced."
+  },
+  "conventions": {
+    "common_sha256": "99ec37430b2787afcc2eccf93212fc4b4ad6377815a12b2d47c2868749877992",
+    "direct_reads_denied": 0,
+    "leak_scan": {
+      "hits": [],
+      "responses_scanned": 0
+    },
+    "served": [
+      {
+        "domain": "db",
+        "fingerprint": "3d7d6a02",
+        "path": "conventions/db.md",
+        "served_at": "2026-09-10T13:44:51Z",
+        "sha256": "3d7d6a02d6d004f9f05f56d2e5d1bb4e5d3088904537b5fe7b4ddf4b8c3bc75e"
+      }
+    ]
+  },
+  "git": {
+    "changed_files": [
+      {
+        "domain": "db",
+        "in_scope": true,
+        "path": "features/db/order_items_order_items_quantity_constraint.feature",
+        "sha256": "6463037ad823b427e43b55f2e80ed9d53b5a43fed1b8050ac9a89320cafb7daf",
+        "status": "??"
+      }
+    ],
+    "head_at_finish": "962c35c7dfcd6c6d6d66461691dff147cbcb3c12",
+    "head_at_start": "962c35c7dfcd6c6d6d66461691dff147cbcb3c12",
+    "out_of_scope_changes": [],
+    "patch": null
+  },
+  "governance": {
+    "events_recorded": 5,
+    "finalized_by": "cli:finish",
+    "hooks_active": false,
+    "integrity": "not_configured",
+    "policy_sha256": "3063755907636d5a654b810e3026b45803517b3cd6fb9173a5c1713d0c05c44e"
+  },
+  "notes": [],
+  "outputs": [
+    {
+      "ac_coverage": {
+        "1": [
+          "order_items: a zero quantity is rejected on insert",
+          "order_items: a negative quantity is rejected on update"
+        ],
+        "2": [
+          "order_items: the up migration succeeds and leaves an existing valid row unaffected",
+          "order_items: the up migration refuses when an existing row would violate the constraint"
+        ],
+        "3": [
+          "order_items: the down migration removes the constraint"
+        ]
+      },
+      "adds_to_specification": [
+        "constraint chk_order_items_quantity_positive",
+        "migration 0004_order_items_quantity_positive"
+      ],
+      "domain": "db",
+      "failures": [],
+      "path": "features/db/order_items_order_items_quantity_constraint.feature",
+      "scenarios": 5,
+      "sha256": "6463037ad823b427e43b55f2e80ed9d53b5a43fed1b8050ac9a89320cafb7daf",
+      "snapshot": "output/order_items_order_items_quantity_constraint.feature",
+      "spec_pending": true,
+      "uncovered": [],
+      "validation": "PASS",
+      "warnings": []
+    }
+  ],
+  "policy": {
+    "allowed_write_globs": [
+      "features/db/**"
+    ],
+    "attempted_violations": [],
+    "terminal": {
+      "allowed": [],
+      "denied": []
+    },
+    "tool_calls": {
+      "allowed": 0,
+      "denied": 0,
+      "total": 0
+    }
+  },
+  "run_id": "2026-09-10T13-44-51Z_TKT-3_2a530a",
+  "schema_version": "1.0",
+  "session": {
+    "agent": {
+      "name": "feature-author",
+      "path": ".github/agents/feature-author.agent.md",
+      "sha256": "f34c8119371360a42700849097b43ae2f37c0299451131115639a9b8f5030071"
+    },
+    "created_by": "cli:declare",
+    "finished_at": "2026-09-10T13:48:50Z",
+    "model": null,
+    "session_id": null,
+    "started_at": "2026-09-10T13:44:51Z"
+  },
+  "ticket": {
+    "acceptance_criteria_count": 3,
+    "id": "TKT-3",
+    "path": "tickets/TKT-3.md",
+    "sha256": "086b049da98a6eda030f0e804ad955f8ac340afa089f5e325a5e3161dd5b1160",
+    "title": "Order items quantity constraint"
+  },
+  "validation": {
+    "attempts": [
+      {
+        "at": "2026-09-10T13:48:45Z",
+        "domain": "db",
+        "failures": [],
+        "file": "features/db/order_items_order_items_quantity_constraint.feature",
+        "new_objects": [
+          "constraint chk_order_items_quantity_positive",
+          "migration 0004_order_items_quantity_positive"
+        ],
+        "ok": true,
+        "uncovered": [],
+        "warnings": []
+      }
+    ],
+    "cross_check": {
+      "features/db/order_items_order_items_quantity_constraint.feature": {
+        "api": 27,
+        "ui": 28
+      }
+    },
+    "final": {
+      "all_pass": true,
+      "files": {
+        "features/db/order_items_order_items_quantity_constraint.feature": "PASS"
+      }
+    }
+  },
+  "verdict": {
+    "policy_held": true,
+    "reasons": [
+      "policy held, outputs valid, classification matches the expected domains"
+    ],
+    "status": "PASS"
+  }
+}

@@ -1,0 +1,8 @@
+RUN SUMMARY
+ticket: TKT-3
+domains: db
+files: features/db/order_items_order_items_quantity_constraint.feature
+validation: PASS
+denied tool calls: 0
+spec-pending: constraint chk_order_items_quantity_positive; migration 0004_order_items_quantity_positive
+discrepancies: none

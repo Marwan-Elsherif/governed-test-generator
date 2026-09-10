@@ -1,0 +1,7 @@
+{"at": "2026-09-10T13:49:21Z", "created_by": "cli:declare", "event": "run_created", "run_id": "2026-09-10T13-49-21Z_TKT-3_5b2f1f", "ticket_id": "TKT-3"}
+{"at": "2026-09-10T13:49:21Z", "domains": ["db"], "event": "declare", "evidence": ["order_items.quantity currently accepts any integer. It must be a positive integer.", "Inserting or updating an order_items row with quantity \u2264 0 is rejected."], "mentioned": [], "rationale": "Database constraint on order_items.quantity requiring positive values."}
+{"at": "2026-09-10T13:49:21Z", "event": "conventions_served", "served": [{"domain": "db", "fingerprint": "3d7d6a02", "path": "conventions/db.md", "served_at": "2026-09-10T13:49:21Z", "sha256": "3d7d6a02d6d004f9f05f56d2e5d1bb4e5d3088904537b5fe7b4ddf4b8c3bc75e"}]}
+{"at": "2026-09-10T13:49:34Z", "event": "declare_rejected", "reason": "already declared", "requested": ["db"]}
+{"at": "2026-09-10T13:49:38Z", "event": "declare_rejected", "reason": "already declared", "requested": ["db"]}
+{"at": "2026-09-10T13:49:55Z", "domain": "db", "event": "validate", "failures": [], "file": "features/db/order_items_quantity_constraint.feature", "new_objects": ["constraint chk_order_items_quantity_positive", "migration 0004_order_items_quantity_constraint"], "ok": true, "uncovered": [], "warnings": []}
+{"at": "2026-09-10T13:49:55Z", "event": "finish", "finalized_by": "cli:finish"}

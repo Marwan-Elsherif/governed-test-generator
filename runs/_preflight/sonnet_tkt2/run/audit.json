@@ -1,0 +1,169 @@
+{
+  "artifacts": {
+    "events": "events.jsonl",
+    "served": "served/",
+    "transcript": null
+  },
+  "classification": {
+    "amendments": [],
+    "declared_at": "2026-09-10T13:45:02Z",
+    "declared_domains": [
+      "api"
+    ],
+    "evidence": [
+      "Expose `GET /cart/{id}/total` so the storefront can show totals without fetching the whole cart.",
+      "Returns 200 with `subtotal`, `tax` and `total` for an existing cart."
+    ],
+    "expected_domains": [
+      "api"
+    ],
+    "match": "exact",
+    "mentioned_not_in_scope": [],
+    "rationale": "The ticket defines a REST endpoint with explicit status codes (200, 404, 400) and JSON payload fields (subtotal, tax, total); every acceptance criterion tests an HTTP response, not a storefront page or a database schema."
+  },
+  "conventions": {
+    "common_sha256": "99ec37430b2787afcc2eccf93212fc4b4ad6377815a12b2d47c2868749877992",
+    "direct_reads_denied": 0,
+    "leak_scan": {
+      "hits": [],
+      "responses_scanned": 0
+    },
+    "served": [
+      {
+        "domain": "api",
+        "fingerprint": "ae8ca968",
+        "path": "conventions/api.md",
+        "served_at": "2026-09-10T13:45:02Z",
+        "sha256": "ae8ca968b1e7e6669a7244b3c6208e9128aa3d54e4a9d684ae85f00d5a27c895"
+      }
+    ]
+  },
+  "git": {
+    "changed_files": [
+      {
+        "domain": "api",
+        "in_scope": true,
+        "path": "features/api/cart_total_get.feature",
+        "sha256": "7f202cacc34161ab3fb67c464a3c91f3a4019cd49b05557beae366e5fbe77a12",
+        "status": "??"
+      }
+    ],
+    "head_at_finish": "962c35c7dfcd6c6d6d66461691dff147cbcb3c12",
+    "head_at_start": "962c35c7dfcd6c6d6d66461691dff147cbcb3c12",
+    "out_of_scope_changes": [],
+    "patch": null
+  },
+  "governance": {
+    "events_recorded": 5,
+    "finalized_by": "cli:finish",
+    "hooks_active": false,
+    "integrity": "not_configured",
+    "policy_sha256": "3063755907636d5a654b810e3026b45803517b3cd6fb9173a5c1713d0c05c44e"
+  },
+  "notes": [],
+  "outputs": [
+    {
+      "ac_coverage": {
+        "1": [
+          "returns 200 when the cart has items"
+        ],
+        "2": [
+          "returns 200 when the cart has items"
+        ],
+        "3": [
+          "returns 404 when no cart has the id"
+        ],
+        "4": [
+          "returns 400 when the id is not a UUID"
+        ],
+        "5": [
+          "returns 200 when the cart is empty"
+        ]
+      },
+      "adds_to_specification": [
+        "GET /cart/{id}/total"
+      ],
+      "domain": "api",
+      "failures": [],
+      "path": "features/api/cart_total_get.feature",
+      "scenarios": 4,
+      "sha256": "7f202cacc34161ab3fb67c464a3c91f3a4019cd49b05557beae366e5fbe77a12",
+      "snapshot": "output/cart_total_get.feature",
+      "spec_pending": true,
+      "uncovered": [],
+      "validation": "PASS",
+      "warnings": []
+    }
+  ],
+  "policy": {
+    "allowed_write_globs": [
+      "features/api/**"
+    ],
+    "attempted_violations": [],
+    "terminal": {
+      "allowed": [],
+      "denied": []
+    },
+    "tool_calls": {
+      "allowed": 0,
+      "denied": 0,
+      "total": 0
+    }
+  },
+  "run_id": "2026-09-10T13-45-02Z_TKT-2_fcbd3e",
+  "schema_version": "1.0",
+  "session": {
+    "agent": {
+      "name": "feature-author",
+      "path": ".github/agents/feature-author.agent.md",
+      "sha256": "f34c8119371360a42700849097b43ae2f37c0299451131115639a9b8f5030071"
+    },
+    "created_by": "cli:declare",
+    "finished_at": "2026-09-10T13:46:51Z",
+    "model": null,
+    "session_id": null,
+    "started_at": "2026-09-10T13:45:02Z"
+  },
+  "ticket": {
+    "acceptance_criteria_count": 5,
+    "id": "TKT-2",
+    "path": "tickets/TKT-2.md",
+    "sha256": "4efa844f74ce24ad8901eb8fb2ada6875eac95bacbdfaebbe19fbeb83cd269f5",
+    "title": "Cart total endpoint"
+  },
+  "validation": {
+    "attempts": [
+      {
+        "at": "2026-09-10T13:46:47Z",
+        "domain": "api",
+        "failures": [],
+        "file": "features/api/cart_total_get.feature",
+        "new_objects": [
+          "GET /cart/{id}/total"
+        ],
+        "ok": true,
+        "uncovered": [],
+        "warnings": []
+      }
+    ],
+    "cross_check": {
+      "features/api/cart_total_get.feature": {
+        "db": 22,
+        "ui": 28
+      }
+    },
+    "final": {
+      "all_pass": true,
+      "files": {
+        "features/api/cart_total_get.feature": "PASS"
+      }
+    }
+  },
+  "verdict": {
+    "policy_held": true,
+    "reasons": [
+      "policy held, outputs valid, classification matches the expected domains"
+    ],
+    "status": "PASS"
+  }
+}

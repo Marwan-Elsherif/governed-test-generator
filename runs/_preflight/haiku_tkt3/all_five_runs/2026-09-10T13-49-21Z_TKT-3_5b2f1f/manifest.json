@@ -1,0 +1,280 @@
+{
+  "allowed_write_globs": [
+    "features/db/**"
+  ],
+  "baseline": {
+    "captured_at": "2026-09-10T13:49:21Z",
+    "dirty": [
+      {
+        "path": "features/db/order_items_quantity_constraint.feature",
+        "sha256": "003702e5760f0264bb2727040c9d8cba03789d93f53305434f810c3f3b5eea62",
+        "status": "A "
+      },
+      {
+        "path": "runs/.current",
+        "sha256": "2ce533d048872f0edb1d601cff5656c9c56b34a82c5f913935f8baa8d0d73b91",
+        "status": "??"
+      },
+      {
+        "path": "runs/.last",
+        "sha256": "2ce533d048872f0edb1d601cff5656c9c56b34a82c5f913935f8baa8d0d73b91",
+        "status": "??"
+      },
+      {
+        "path": "runs/2026-09-10T13-46-16Z_TKT-3_2d86bc/audit.json",
+        "sha256": "b9f9f6f8ece5ca00b0dae3ee2fda11d13398a5f3b6e207195955b5958d8b926f",
+        "status": "??"
+      },
+      {
+        "path": "runs/2026-09-10T13-46-16Z_TKT-3_2d86bc/audit.md",
+        "sha256": "e77f1b707ccc6eb01041bb4b9eaae33b9c5b634175f7fedb03d1332e6794f781",
+        "status": "??"
+      },
+      {
+        "path": "runs/2026-09-10T13-46-16Z_TKT-3_2d86bc/events.jsonl",
+        "sha256": "07e3c599171a4f2998ac6cdd42652d4904b2c0fad21d2efa27d73581e63d706a",
+        "status": "??"
+      },
+      {
+        "path": "runs/2026-09-10T13-46-16Z_TKT-3_2d86bc/git/diff.patch",
+        "sha256": "ebe92adf68e4b67235e22c93a032744ac5575f908a1628cbed8f4ce11f863e24",
+        "status": "??"
+      },
+      {
+        "path": "runs/2026-09-10T13-46-16Z_TKT-3_2d86bc/git/status.txt",
+        "sha256": "4e22d60c8d624ed6daa8654588c54ed411fe035c30ce8bcb9f25c962285af578",
+        "status": "??"
+      },
+      {
+        "path": "runs/2026-09-10T13-46-16Z_TKT-3_2d86bc/manifest.json",
+        "sha256": "4459bc834e3e8abe0f9ab630ff9e757e6336ba7cb96f5bb894c869faaa0ca1f6",
+        "status": "??"
+      },
+      {
+        "path": "runs/2026-09-10T13-46-16Z_TKT-3_2d86bc/output/attempts/001_validate_order_items_quantity_constraint.feature",
+        "sha256": "003702e5760f0264bb2727040c9d8cba03789d93f53305434f810c3f3b5eea62",
+        "status": "??"
+      },
+      {
+        "path": "runs/2026-09-10T13-46-16Z_TKT-3_2d86bc/served/common.md",
+        "sha256": "99ec37430b2787afcc2eccf93212fc4b4ad6377815a12b2d47c2868749877992",
+        "status": "??"
+      },
+      {
+        "path": "runs/2026-09-10T13-46-16Z_TKT-3_2d86bc/served/db.md",
+        "sha256": "3d7d6a02d6d004f9f05f56d2e5d1bb4e5d3088904537b5fe7b4ddf4b8c3bc75e",
+        "status": "??"
+      },
+      {
+        "path": "runs/2026-09-10T13-46-16Z_TKT-3_2d86bc/served/served.txt",
+        "sha256": "37f687a2c9ae07b723cb340e0378ebebc66d55a543cb816db5f18765aa9840e7",
+        "status": "??"
+      },
+      {
+        "path": "runs/2026-09-10T13-47-01Z_TKT-3_394721/audit.json",
+        "sha256": "08356c9f17c2f9e879e3faa667bc4b3333aab4d6c04fae25a8dc840af7630da7",
+        "status": "??"
+      },
+      {
+        "path": "runs/2026-09-10T13-47-01Z_TKT-3_394721/audit.md",
+        "sha256": "5c58188fceab05320628b645865a3800b83d743c3da58b56f3d85e9e421df88e",
+        "status": "??"
+      },
+      {
+        "path": "runs/2026-09-10T13-47-01Z_TKT-3_394721/events.jsonl",
+        "sha256": "f1cc6f3b7aa52cde5973ec44febaef64c897ed2960fda94bf050133f00cab9ae",
+        "status": "??"
+      },
+      {
+        "path": "runs/2026-09-10T13-47-01Z_TKT-3_394721/git/diff.patch",
+        "sha256": "ebe92adf68e4b67235e22c93a032744ac5575f908a1628cbed8f4ce11f863e24",
+        "status": "??"
+      },
+      {
+        "path": "runs/2026-09-10T13-47-01Z_TKT-3_394721/git/status.txt",
+        "sha256": "94cacf74a47af6ffdfb9e4981c551fe73426772fd7f19ddafd8b157c5fae4884",
+        "status": "??"
+      },
+      {
+        "path": "runs/2026-09-10T13-47-01Z_TKT-3_394721/manifest.json",
+        "sha256": "58cbec155c026f42f21bf43c95be1eb130946d79b11a9551cef8c1e4c46fab6c",
+        "status": "??"
+      },
+      {
+        "path": "runs/2026-09-10T13-47-01Z_TKT-3_394721/served/common.md",
+        "sha256": "99ec37430b2787afcc2eccf93212fc4b4ad6377815a12b2d47c2868749877992",
+        "status": "??"
+      },
+      {
+        "path": "runs/2026-09-10T13-47-01Z_TKT-3_394721/served/db.md",
+        "sha256": "3d7d6a02d6d004f9f05f56d2e5d1bb4e5d3088904537b5fe7b4ddf4b8c3bc75e",
+        "status": "??"
+      },
+      {
+        "path": "runs/2026-09-10T13-47-01Z_TKT-3_394721/served/served.txt",
+        "sha256": "7eae50fbc3f7c4da1682ddb5d65e9c4f00a977ae49a6fd23431acbf954699b54",
+        "status": "??"
+      },
+      {
+        "path": "runs/2026-09-10T13-48-02Z_TKT-3_29a0d9/audit.json",
+        "sha256": "a52692eddbb5eb5d7b65f6d6532dba60972ef0224128bfee33f135c1766bf58c",
+        "status": "??"
+      },
+      {
+        "path": "runs/2026-09-10T13-48-02Z_TKT-3_29a0d9/audit.md",
+        "sha256": "1df11af7dc73cd3ef31d17ffc9c3384008e0c7c1e9467191e9a97b3f158bda27",
+        "status": "??"
+      },
+      {
+        "path": "runs/2026-09-10T13-48-02Z_TKT-3_29a0d9/events.jsonl",
+        "sha256": "ebe4a28c7238d6d339f1dda2b181c1278aa58dd01d7f42ee439ddaad8a1468e1",
+        "status": "??"
+      },
+      {
+        "path": "runs/2026-09-10T13-48-02Z_TKT-3_29a0d9/git/diff.patch",
+        "sha256": "ebe92adf68e4b67235e22c93a032744ac5575f908a1628cbed8f4ce11f863e24",
+        "status": "??"
+      },
+      {
+        "path": "runs/2026-09-10T13-48-02Z_TKT-3_29a0d9/git/status.txt",
+        "sha256": "e5e02265b83d4888bb1ffee7f701f5e0c5c2aee3ff43bd40273b828a85c99551",
+        "status": "??"
+      },
+      {
+        "path": "runs/2026-09-10T13-48-02Z_TKT-3_29a0d9/manifest.json",
+        "sha256": "40e11e16593cc1b529a4d8413d972f8a620e81af25198d80023fe1bcd7146057",
+        "status": "??"
+      },
+      {
+        "path": "runs/2026-09-10T13-48-02Z_TKT-3_29a0d9/output/attempts/001_validate_order_items_order_items_quantity_constraint.feature",
+        "sha256": "003702e5760f0264bb2727040c9d8cba03789d93f53305434f810c3f3b5eea62",
+        "status": "??"
+      },
+      {
+        "path": "runs/2026-09-10T13-48-02Z_TKT-3_29a0d9/served/common.md",
+        "sha256": "99ec37430b2787afcc2eccf93212fc4b4ad6377815a12b2d47c2868749877992",
+        "status": "??"
+      },
+      {
+        "path": "runs/2026-09-10T13-48-02Z_TKT-3_29a0d9/served/db.md",
+        "sha256": "3d7d6a02d6d004f9f05f56d2e5d1bb4e5d3088904537b5fe7b4ddf4b8c3bc75e",
+        "status": "??"
+      },
+      {
+        "path": "runs/2026-09-10T13-48-02Z_TKT-3_29a0d9/served/served.txt",
+        "sha256": "7900998991f44ab5619666ef565841f0328ed09654266df0a29e8f19752b3686",
+        "status": "??"
+      },
+      {
+        "path": "runs/2026-09-10T13-48-36Z_TKT-3_490afa/audit.json",
+        "sha256": "fe4b17a91af579f3532f78b99b351c8d51c20cb48bc45b6c9092bfa1b459c91c",
+        "status": "??"
+      },
+      {
+        "path": "runs/2026-09-10T13-48-36Z_TKT-3_490afa/audit.md",
+        "sha256": "eb4f468cac806ecbed7630cdaec7fba980c70e1817f1340b0610fc1a81d0a854",
+        "status": "??"
+      },
+      {
+        "path": "runs/2026-09-10T13-48-36Z_TKT-3_490afa/events.jsonl",
+        "sha256": "0898588d0a85b86b1f1cff6924a64f805919682af5c47a6870b2196668eead8e",
+        "status": "??"
+      },
+      {
+        "path": "runs/2026-09-10T13-48-36Z_TKT-3_490afa/git/diff.patch",
+        "sha256": "ebe92adf68e4b67235e22c93a032744ac5575f908a1628cbed8f4ce11f863e24",
+        "status": "??"
+      },
+      {
+        "path": "runs/2026-09-10T13-48-36Z_TKT-3_490afa/git/status.txt",
+        "sha256": "2b01b1aa3cfc80424aa685bd0d038990ca41a044097c80054ed2d1c0c7d6c4bb",
+        "status": "??"
+      },
+      {
+        "path": "runs/2026-09-10T13-48-36Z_TKT-3_490afa/manifest.json",
+        "sha256": "75d28d6e819d19ce60347a9cb1a64d9a870ee6f6be35874ff17d90f3c6ededd3",
+        "status": "??"
+      },
+      {
+        "path": "runs/2026-09-10T13-48-36Z_TKT-3_490afa/served/common.md",
+        "sha256": "99ec37430b2787afcc2eccf93212fc4b4ad6377815a12b2d47c2868749877992",
+        "status": "??"
+      },
+      {
+        "path": "runs/2026-09-10T13-48-36Z_TKT-3_490afa/served/db.md",
+        "sha256": "3d7d6a02d6d004f9f05f56d2e5d1bb4e5d3088904537b5fe7b4ddf4b8c3bc75e",
+        "status": "??"
+      },
+      {
+        "path": "runs/2026-09-10T13-48-36Z_TKT-3_490afa/served/served.txt",
+        "sha256": "e87bf3719f643d7cc2efea08097a04d30706ca136481a2b29e8fcac1b5fb210d",
+        "status": "??"
+      },
+      {
+        "path": "runs/2026-09-10T13-49-21Z_TKT-3_5b2f1f/events.jsonl",
+        "sha256": "e91100223775c42b6c9268fd2d6e14860e969055c739ea6ee5ec688e8a94b3f3",
+        "status": "??"
+      },
+      {
+        "path": "runs/2026-09-10T13-49-21Z_TKT-3_5b2f1f/manifest.json",
+        "sha256": "f2cc970a7556d12ec5fadd56455895af949e7e2580d3a783caac750313cbd40d",
+        "status": "??"
+      },
+      {
+        "path": "runs/INDEX.md",
+        "sha256": "952dde95027eca29e5284b4a227778c667246e2d0e9caeea781206f2ce89181a",
+        "status": "??"
+      }
+    ],
+    "head": "962c35c7dfcd6c6d6d66461691dff147cbcb3c12"
+  },
+  "classification": {
+    "amendments": [],
+    "declared_at": "2026-09-10T13:49:21Z",
+    "domains": [
+      "db"
+    ],
+    "evidence": [
+      "order_items.quantity currently accepts any integer. It must be a positive integer.",
+      "Inserting or updating an order_items row with quantity \u2264 0 is rejected."
+    ],
+    "mentioned_not_in_scope": [],
+    "rationale": "Database constraint on order_items.quantity requiring positive values."
+  },
+  "conventions_served": [
+    {
+      "domain": "db",
+      "fingerprint": "3d7d6a02",
+      "path": "conventions/db.md",
+      "served_at": "2026-09-10T13:49:21Z",
+      "sha256": "3d7d6a02d6d004f9f05f56d2e5d1bb4e5d3088904537b5fe7b4ddf4b8c3bc75e"
+    }
+  ],
+  "created_at": "2026-09-10T13:49:21Z",
+  "created_by": "cli:declare",
+  "finished_at": "2026-09-10T13:49:55Z",
+  "hooks_active": false,
+  "notes": [],
+  "prompts": [],
+  "run_id": "2026-09-10T13-49-21Z_TKT-3_5b2f1f",
+  "schema": "gov-run-manifest/1",
+  "session_id": null,
+  "status": "finished",
+  "ticket_id": "TKT-3",
+  "updated_at": "2026-09-10T13:49:55Z",
+  "validations": [
+    {
+      "at": "2026-09-10T13:49:55Z",
+      "domain": "db",
+      "failures": [],
+      "file": "features/db/order_items_quantity_constraint.feature",
+      "new_objects": [
+        "constraint chk_order_items_quantity_positive",
+        "migration 0004_order_items_quantity_constraint"
+      ],
+      "ok": true,
+      "uncovered": [],
+      "warnings": []
+    }
+  ]
+}

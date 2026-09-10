@@ -1,0 +1,209 @@
+== GOVERNANCE: TKT-3 declared as [db] ==
+Run: runs/2026-09-10T13-49-21Z_TKT-3_5b2f1f
+Allowed write paths: features/db/**
+Everything else is denied and recorded. Reads of conventions/ are denied: this output is the only copy you get, and it is logged.
+
+== CONVENTIONS: common (all domains) ==
+# Common conventions (all domains)
+
+Version 1. These rules apply to every feature file in `features/`, in addition
+to the rules of its domain. Rule IDs are checked mechanically by
+`python3 tools/gov.py validate`; a rule is FAIL unless marked WARN.
+
+## Header and location
+
+- **C-01 Location.** The file lives at `features/<domain>/<name>.feature`, where
+  `<domain>` is `ui`, `api` or `db` and `<name>` is snake_case: lowercase
+  letters, digits and underscores only.
+- **C-02 Header.** The first line of the file is exactly
+  `# gov: ticket=<TKT-n> domain=<domain> conventions=<domain>@<fingerprint>`.
+  The domain matches the folder. The fingerprint is the eight-character value
+  printed when the conventions were served to you; it is not in any file you
+  can read, so copy it from that output. A wrong or missing fingerprint fails.
+- **C-03 Structure.** One `Feature:`. At least one `Scenario:` or
+  `Scenario Outline:`. Every scenario has at least one `When` and at least one
+  `Then`, and no `Given` appears after a `When` or `Then` (`And`/`But` take the
+  meaning of the step above them). Every `Scenario Outline` has an `Examples:`
+  table with at least one data row.
+
+## Tags
+
+- **C-04 Domain and ticket tags.** The feature line carries `@<domain>` and
+  exactly one `@TKT-n` tag naming the ticket. It carries no other domain's
+  tag. (Hand-written exemplars carry `@exemplar` instead of a ticket tag.)
+- **C-05 Lexicon.** The file contains none of the domain's forbidden terms,
+  listed in the domain conventions. Comment lines are not scanned. Matching is
+  case-insensitive on whole words.
+- **C-06 Traceability.** Every scenario carries at least one `@ac-<n>` tag,
+  where `<n>` is the position of an acceptance criterion in the ticket
+  (first criterion is `@ac-1`), or `@ac-extra` for a scenario beyond the
+  ticket's criteria. Every criterion in the ticket appears on at least one
+  scenario. A criterion may be covered by several scenarios.
+- **C-07 Target state.** If the thing under test is not in the domain's
+  specification yet, the feature line carries `@spec-pending`; if it is already
+  specified, it must not. What "the specification" means, and what counts as
+  "the thing under test", is defined per domain. The check runs both ways.
+
+## Hygiene
+
+- **C-08 Uniqueness.** Scenario names are unique within the feature. No step
+  line is repeated verbatim within one scenario.
+- **C-09 Size (WARN).** At most 10 steps per scenario and at most 12 scenarios
+  per feature. Split the feature rather than exceed this.
+
+## When the ticket and the specification disagree
+
+Follow the specification in `shop/` and say so in the run summary. The
+specification is the contract; the ticket is a request written quickly. A
+discrepancy is worth surfacing, not silently resolving either way.
+
+== CONVENTIONS: db  |  fingerprint: 3d7d6a02  (copy this into the file header exactly) ==
+# db conventions
+
+Version 1. Applies to `features/db/**`, together with `conventions/common.md`.
+Rule IDs are checked mechanically by `python3 tools/gov.py validate`; a rule
+is FAIL unless marked WARN. Worked example: `features/db/products_price_check.feature`.
+
+## What a db feature file is
+
+A data-integrity specification: what the schema permits, what it rejects, and
+how a migration moves between the two. Scenarios speak in tables, columns,
+constraints, indexes and migrations. They never mention requests, screens or
+shoppers. Every scenario that writes data leaves the database as it found it.
+
+The schema is `shop/db/schema.sql`; migrations and their format, the naming
+patterns and the test-data policy are in `shop/db/README.md`.
+
+## Rules
+
+- **DB-01 Title.** `Feature: DB <table> - <concern>`, where `<table>` is a
+  table in the schema, spelled exactly.
+- **DB-02 Feature tags.** The feature line carries `@db` and `@table-<table>`
+  for the title's table. A feature that applies or rolls back a migration also
+  carries `@migration-<NNNN>_<slug>`: an existing migration id, or, for a
+  migration this ticket introduces, exactly the next number in sequence with
+  a snake_case slug.
+- **DB-03 Background.** A `Background:` exists and its first step is
+  `Given the database schema is at migration "<NNNN>_<slug>"`, naming an
+  existing migration: the state before this feature's changes.
+- **DB-04 Rollback.** Every scenario containing a write step (see DB-08) is
+  tagged `@rollback`.
+- **DB-05 Reversibility.** A feature carrying `@migration-...` has at least one
+  scenario tagged `@up` that applies the migration and at least one tagged
+  `@down` that rolls it back and asserts the schema object is gone.
+- **DB-06 Names.** Every quoted table exists in the schema. Every column in a
+  data table header exists on that table. Constraint names follow
+  `chk_<table>_<column>_<rule>`, `fk_<table>_<column>`, `uq_<table>_<columns>`,
+  `pk_<table>`; index names follow `idx_<table>_<columns>`.
+- **DB-07 Fixture ids.** Every UUID literal is from the reserved test range
+  `00000000-0000-4000-8000-XXXXXXXXXXXX`.
+- **DB-08 Step catalogue.** Write steps:
+  `Given the following rows exist in "<table>":` with a data table;
+  `Given migration "<id>" is applied`;
+  `When I insert into "<table>":` with a data table;
+  `When I update "<table>" setting <column> to <value> where <condition>`;
+  `When I delete from "<table>" where <condition>`;
+  `When I apply migration "<id>"`; `When I roll back migration "<id>"`.
+  Assertion steps (every `Then`, and `And`/`But` continuing one) are one of:
+  `the statement succeeds`;
+  `the statement fails with constraint "<name>"`;
+  `the migration succeeds`;
+  `the migration fails with "<message fragment>"`;
+  `a constraint "<name>" exists on "<table>"`;
+  `no constraint "<name>" exists on "<table>"`;
+  `an index "<name>" exists on "<table>" (<columns>)`;
+  `no index "<name>" exists on "<table>"`;
+  `the row count of "<table>" is <n>`;
+  `the rows in "<table>" are unchanged`.
+- **DB-09 Scenario names.** `<table>: <expectation>`, where `<table>` is the
+  feature's table, for example `Scenario: order_items: a zero quantity is rejected`.
+- **DB-10 Forbidden terms.** `http`, `status code`, `response status`,
+  `endpoint`, `request`, `response`, `json`, `click`, `button`, `shopper`,
+  `i should see`, `the page`, `screen`.
+
+## Target state (C-07 for db)
+
+"The specification" is `schema.sql` and the migrations folder. "The thing
+under test" is every constraint, index or migration id the feature names. If
+any is absent from the specification, the feature is `@spec-pending`; a new
+migration id is then provisional and is assigned for real at implementation.
+The run summary names the new objects.
+
+## Writing it well
+
+A migration feature has four shapes of scenario: the up applies cleanly, the
+up refuses when existing data would violate it, the new rule rejects bad
+writes, the down removes it. Insert only the rows the scenario needs, with
+explicit ids from the reserved range, and let `@rollback` clean up.
+
+== WORKED EXAMPLE: features/db/products_price_check.feature ==
+@db @exemplar @table-products @migration-0003_products_price_check
+Feature: DB products - price_cents must not be negative
+
+  Background:
+    Given the database schema is at migration "0002_carts_status"
+
+  @up @rollback @ac-1
+  Scenario: products: the up migration adds the check constraint
+    When I apply migration "0003_products_price_check"
+    Then the migration succeeds
+    And a constraint "chk_products_price_cents_non_negative" exists on "products"
+
+  @up @rollback @ac-2
+  Scenario: products: the up migration refuses when a negative price already exists
+    Given the following rows exist in "products":
+      | id                                   | sku      | name      | category | price_cents |
+      | 00000000-0000-4000-8000-000000000001 | TEST-NEG | Bad price | test     | -100        |
+    When I apply migration "0003_products_price_check"
+    Then the migration fails with "1 existing row(s) have price_cents < 0"
+    And no constraint "chk_products_price_cents_non_negative" exists on "products"
+
+  @rollback @ac-3
+  Scenario: products: a negative price is rejected once the constraint exists
+    Given migration "0003_products_price_check" is applied
+    When I insert into "products":
+      | id                                   | sku        | name      | category | price_cents |
+      | 00000000-0000-4000-8000-000000000002 | TEST-NEG-2 | Bad price | test     | -1          |
+    Then the statement fails with constraint "chk_products_price_cents_non_negative"
+
+  @down @rollback @ac-4
+  Scenario: products: the down migration removes the constraint
+    Given migration "0003_products_price_check" is applied
+    When I roll back migration "0003_products_price_check"
+    Then the migration succeeds
+    And no constraint "chk_products_price_cents_non_negative" exists on "products"
+
+== CONTEXT PACK: db (read these with the read tool for facts) ==
+- shop/README.md
+- shop/db/schema.sql
+- shop/db/README.md
+- shop/db/migrations/
+
+== TICKET: TKT-3 — Order items quantity constraint ==
+`order_items.quantity` currently accepts any integer. It must be a positive integer.
+Acceptance criteria (use these numbers in @ac-<n> tags):
+  ac-1: Inserting or updating an `order_items` row with quantity ≤ 0 is rejected.
+  ac-2: Existing rows are unaffected by the migration; the migration fails if any existing row would violate the constraint.
+  ac-3: The constraint is reversible (down migration removes it).
+
+== SKELETON: features/db/order_items_order_items_quantity_constraint.feature (create this file; keep line 1 exactly) ==
+# gov: ticket=TKT-3 domain=db conventions=db@3d7d6a02
+@db @table-order_items @TKT-3
+Feature: DB order_items - <concern>
+
+  Background:
+    Given the database schema is at migration "<latest existing migration id>"
+
+  # If this ticket introduces a migration, add @migration-<next number>_<slug>
+  # and @spec-pending on the feature line, with @up and @down scenarios.
+  # Every scenario that writes rows is @rollback. Acceptance criteria:
+  # ac-1: Inserting or updating an `order_items` row with quantity ≤ 0 is rejected.
+  # ac-2: Existing rows are unaffected by the migration; the migration fails if any existing row would violate the constraint.
+  # ac-3: The constraint is reversible (down migration removes it).
+
+== NEXT ==
+1. Read the context pack files you need, then create the feature file(s) at the paths above, one per declared domain.
+2. Run: python3 tools/gov.py validate
+3. Fix every FAIL it names (each is a rule id from the conventions above) and validate again until every file is PASS.
+4. Run: python3 tools/gov.py finish   (writes the audit record; the run is not complete until this succeeds)
+Then reply with the run summary in the format your instructions specify.

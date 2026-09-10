@@ -1,0 +1,79 @@
+{
+  "allowed_write_globs": [
+    "features/api/**"
+  ],
+  "baseline": {
+    "captured_at": "2026-09-10T13:45:02Z",
+    "dirty": [
+      {
+        "path": "runs/.current",
+        "sha256": "99717cab99176d50729cbdefb849ee025fde9b48c941c187af32129780e98030",
+        "status": "??"
+      },
+      {
+        "path": "runs/.last",
+        "sha256": "99717cab99176d50729cbdefb849ee025fde9b48c941c187af32129780e98030",
+        "status": "??"
+      },
+      {
+        "path": "runs/2026-09-10T13-45-02Z_TKT-2_fcbd3e/events.jsonl",
+        "sha256": "c2c17cdfbf9a3fa8ef240a64c691359b16ca44aceb9a319d887bec03b1b630f5",
+        "status": "??"
+      },
+      {
+        "path": "runs/2026-09-10T13-45-02Z_TKT-2_fcbd3e/manifest.json",
+        "sha256": "54961313cc8435699310cb87858173c446e281325801d08161b776ba29a47b7d",
+        "status": "??"
+      }
+    ],
+    "head": "962c35c7dfcd6c6d6d66461691dff147cbcb3c12"
+  },
+  "classification": {
+    "amendments": [],
+    "declared_at": "2026-09-10T13:45:02Z",
+    "domains": [
+      "api"
+    ],
+    "evidence": [
+      "Expose `GET /cart/{id}/total` so the storefront can show totals without fetching the whole cart.",
+      "Returns 200 with `subtotal`, `tax` and `total` for an existing cart."
+    ],
+    "mentioned_not_in_scope": [],
+    "rationale": "The ticket defines a REST endpoint with explicit status codes (200, 404, 400) and JSON payload fields (subtotal, tax, total); every acceptance criterion tests an HTTP response, not a storefront page or a database schema."
+  },
+  "conventions_served": [
+    {
+      "domain": "api",
+      "fingerprint": "ae8ca968",
+      "path": "conventions/api.md",
+      "served_at": "2026-09-10T13:45:02Z",
+      "sha256": "ae8ca968b1e7e6669a7244b3c6208e9128aa3d54e4a9d684ae85f00d5a27c895"
+    }
+  ],
+  "created_at": "2026-09-10T13:45:02Z",
+  "created_by": "cli:declare",
+  "finished_at": "2026-09-10T13:46:51Z",
+  "hooks_active": false,
+  "notes": [],
+  "prompts": [],
+  "run_id": "2026-09-10T13-45-02Z_TKT-2_fcbd3e",
+  "schema": "gov-run-manifest/1",
+  "session_id": null,
+  "status": "finished",
+  "ticket_id": "TKT-2",
+  "updated_at": "2026-09-10T13:46:51Z",
+  "validations": [
+    {
+      "at": "2026-09-10T13:46:47Z",
+      "domain": "api",
+      "failures": [],
+      "file": "features/api/cart_total_get.feature",
+      "new_objects": [
+        "GET /cart/{id}/total"
+      ],
+      "ok": true,
+      "uncovered": [],
+      "warnings": []
+    }
+  ]
+}

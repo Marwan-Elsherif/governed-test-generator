@@ -1,0 +1,4 @@
+{"at": "2026-09-10T13:48:36Z", "created_by": "cli:declare", "event": "run_created", "run_id": "2026-09-10T13-48-36Z_TKT-3_490afa", "ticket_id": "TKT-3"}
+{"at": "2026-09-10T13:48:36Z", "domains": ["db"], "event": "declare", "evidence": ["order_items.quantity currently accepts any integer. It must be a positive integer.", "Inserting or updating an order_items row with quantity \u2264 0 is rejected."], "mentioned": [], "rationale": "Database constraint on order_items.quantity requiring positive values."}
+{"at": "2026-09-10T13:48:36Z", "event": "conventions_served", "served": [{"domain": "db", "fingerprint": "3d7d6a02", "path": "conventions/db.md", "served_at": "2026-09-10T13:48:36Z", "sha256": "3d7d6a02d6d004f9f05f56d2e5d1bb4e5d3088904537b5fe7b4ddf4b8c3bc75e"}]}
+{"at": "2026-09-10T13:48:36Z", "event": "finish", "finalized_by": "cli:finish"}

@@ -1,0 +1,190 @@
+{
+  "allowed_write_globs": [
+    "features/db/**"
+  ],
+  "baseline": {
+    "captured_at": "2026-09-10T13:48:02Z",
+    "dirty": [
+      {
+        "path": "features/db/order_items_quantity_constraint.feature",
+        "sha256": "003702e5760f0264bb2727040c9d8cba03789d93f53305434f810c3f3b5eea62",
+        "status": "A "
+      },
+      {
+        "path": "features/db/order_items_order_items_quantity_constraint.feature",
+        "sha256": "003702e5760f0264bb2727040c9d8cba03789d93f53305434f810c3f3b5eea62",
+        "status": "??"
+      },
+      {
+        "path": "runs/.current",
+        "sha256": "0a206f52d5f0b674bdc057bbd0d6fa0416abfe82b9cf2ef2783ca1444fa2c6ba",
+        "status": "??"
+      },
+      {
+        "path": "runs/.last",
+        "sha256": "0a206f52d5f0b674bdc057bbd0d6fa0416abfe82b9cf2ef2783ca1444fa2c6ba",
+        "status": "??"
+      },
+      {
+        "path": "runs/2026-09-10T13-46-16Z_TKT-3_2d86bc/audit.json",
+        "sha256": "b9f9f6f8ece5ca00b0dae3ee2fda11d13398a5f3b6e207195955b5958d8b926f",
+        "status": "??"
+      },
+      {
+        "path": "runs/2026-09-10T13-46-16Z_TKT-3_2d86bc/audit.md",
+        "sha256": "e77f1b707ccc6eb01041bb4b9eaae33b9c5b634175f7fedb03d1332e6794f781",
+        "status": "??"
+      },
+      {
+        "path": "runs/2026-09-10T13-46-16Z_TKT-3_2d86bc/events.jsonl",
+        "sha256": "07e3c599171a4f2998ac6cdd42652d4904b2c0fad21d2efa27d73581e63d706a",
+        "status": "??"
+      },
+      {
+        "path": "runs/2026-09-10T13-46-16Z_TKT-3_2d86bc/git/diff.patch",
+        "sha256": "ebe92adf68e4b67235e22c93a032744ac5575f908a1628cbed8f4ce11f863e24",
+        "status": "??"
+      },
+      {
+        "path": "runs/2026-09-10T13-46-16Z_TKT-3_2d86bc/git/status.txt",
+        "sha256": "4e22d60c8d624ed6daa8654588c54ed411fe035c30ce8bcb9f25c962285af578",
+        "status": "??"
+      },
+      {
+        "path": "runs/2026-09-10T13-46-16Z_TKT-3_2d86bc/manifest.json",
+        "sha256": "4459bc834e3e8abe0f9ab630ff9e757e6336ba7cb96f5bb894c869faaa0ca1f6",
+        "status": "??"
+      },
+      {
+        "path": "runs/2026-09-10T13-46-16Z_TKT-3_2d86bc/output/attempts/001_validate_order_items_quantity_constraint.feature",
+        "sha256": "003702e5760f0264bb2727040c9d8cba03789d93f53305434f810c3f3b5eea62",
+        "status": "??"
+      },
+      {
+        "path": "runs/2026-09-10T13-46-16Z_TKT-3_2d86bc/served/common.md",
+        "sha256": "99ec37430b2787afcc2eccf93212fc4b4ad6377815a12b2d47c2868749877992",
+        "status": "??"
+      },
+      {
+        "path": "runs/2026-09-10T13-46-16Z_TKT-3_2d86bc/served/db.md",
+        "sha256": "3d7d6a02d6d004f9f05f56d2e5d1bb4e5d3088904537b5fe7b4ddf4b8c3bc75e",
+        "status": "??"
+      },
+      {
+        "path": "runs/2026-09-10T13-46-16Z_TKT-3_2d86bc/served/served.txt",
+        "sha256": "37f687a2c9ae07b723cb340e0378ebebc66d55a543cb816db5f18765aa9840e7",
+        "status": "??"
+      },
+      {
+        "path": "runs/2026-09-10T13-47-01Z_TKT-3_394721/audit.json",
+        "sha256": "08356c9f17c2f9e879e3faa667bc4b3333aab4d6c04fae25a8dc840af7630da7",
+        "status": "??"
+      },
+      {
+        "path": "runs/2026-09-10T13-47-01Z_TKT-3_394721/audit.md",
+        "sha256": "5c58188fceab05320628b645865a3800b83d743c3da58b56f3d85e9e421df88e",
+        "status": "??"
+      },
+      {
+        "path": "runs/2026-09-10T13-47-01Z_TKT-3_394721/events.jsonl",
+        "sha256": "f1cc6f3b7aa52cde5973ec44febaef64c897ed2960fda94bf050133f00cab9ae",
+        "status": "??"
+      },
+      {
+        "path": "runs/2026-09-10T13-47-01Z_TKT-3_394721/git/diff.patch",
+        "sha256": "ebe92adf68e4b67235e22c93a032744ac5575f908a1628cbed8f4ce11f863e24",
+        "status": "??"
+      },
+      {
+        "path": "runs/2026-09-10T13-47-01Z_TKT-3_394721/git/status.txt",
+        "sha256": "94cacf74a47af6ffdfb9e4981c551fe73426772fd7f19ddafd8b157c5fae4884",
+        "status": "??"
+      },
+      {
+        "path": "runs/2026-09-10T13-47-01Z_TKT-3_394721/manifest.json",
+        "sha256": "58cbec155c026f42f21bf43c95be1eb130946d79b11a9551cef8c1e4c46fab6c",
+        "status": "??"
+      },
+      {
+        "path": "runs/2026-09-10T13-47-01Z_TKT-3_394721/served/common.md",
+        "sha256": "99ec37430b2787afcc2eccf93212fc4b4ad6377815a12b2d47c2868749877992",
+        "status": "??"
+      },
+      {
+        "path": "runs/2026-09-10T13-47-01Z_TKT-3_394721/served/db.md",
+        "sha256": "3d7d6a02d6d004f9f05f56d2e5d1bb4e5d3088904537b5fe7b4ddf4b8c3bc75e",
+        "status": "??"
+      },
+      {
+        "path": "runs/2026-09-10T13-47-01Z_TKT-3_394721/served/served.txt",
+        "sha256": "7eae50fbc3f7c4da1682ddb5d65e9c4f00a977ae49a6fd23431acbf954699b54",
+        "status": "??"
+      },
+      {
+        "path": "runs/2026-09-10T13-48-02Z_TKT-3_29a0d9/events.jsonl",
+        "sha256": "9ea2b0eb68de71519da9b0fb72798cdbc519aa30eb0715bcda157e0dbf34c473",
+        "status": "??"
+      },
+      {
+        "path": "runs/2026-09-10T13-48-02Z_TKT-3_29a0d9/manifest.json",
+        "sha256": "a7bdaa2dc69c21043b323cbbc90004ac3b1e08d13f5589cc373863f2679568d2",
+        "status": "??"
+      },
+      {
+        "path": "runs/INDEX.md",
+        "sha256": "b0590cc702367d30690d8a10df99dcad22f77cdfa111c12f4144879e1367cf15",
+        "status": "??"
+      }
+    ],
+    "head": "962c35c7dfcd6c6d6d66461691dff147cbcb3c12"
+  },
+  "classification": {
+    "amendments": [],
+    "declared_at": "2026-09-10T13:48:02Z",
+    "domains": [
+      "db"
+    ],
+    "evidence": [
+      "order_items.quantity currently accepts any integer. It must be a positive integer.",
+      "Inserting or updating an order_items row with quantity \u2264 0 is rejected."
+    ],
+    "mentioned_not_in_scope": [],
+    "rationale": "Database constraint on order_items.quantity requiring positive values, with migration support and reversibility testing."
+  },
+  "conventions_served": [
+    {
+      "domain": "db",
+      "fingerprint": "3d7d6a02",
+      "path": "conventions/db.md",
+      "served_at": "2026-09-10T13:48:02Z",
+      "sha256": "3d7d6a02d6d004f9f05f56d2e5d1bb4e5d3088904537b5fe7b4ddf4b8c3bc75e"
+    }
+  ],
+  "created_at": "2026-09-10T13:48:02Z",
+  "created_by": "cli:declare",
+  "finished_at": "2026-09-10T13:48:10Z",
+  "hooks_active": false,
+  "notes": [],
+  "prompts": [],
+  "run_id": "2026-09-10T13-48-02Z_TKT-3_29a0d9",
+  "schema": "gov-run-manifest/1",
+  "session_id": null,
+  "status": "finished",
+  "ticket_id": "TKT-3",
+  "updated_at": "2026-09-10T13:48:10Z",
+  "validations": [
+    {
+      "at": "2026-09-10T13:48:06Z",
+      "domain": "db",
+      "failures": [],
+      "file": "features/db/order_items_order_items_quantity_constraint.feature",
+      "new_objects": [
+        "constraint chk_order_items_quantity_positive",
+        "migration 0004_order_items_quantity_constraint"
+      ],
+      "ok": true,
+      "uncovered": [],
+      "warnings": []
+    }
+  ]
+}

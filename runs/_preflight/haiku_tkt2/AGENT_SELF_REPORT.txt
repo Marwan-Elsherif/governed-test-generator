@@ -1,0 +1,8 @@
+RUN SUMMARY
+ticket: TKT-2
+domains: api
+files: features/api/cart_total_get.feature
+validation: PASS
+denied tool calls: 1 (declare retry blocked by active TKT-3 run from another session; previous TKT-2 run already finished before finish could be called)
+spec-pending: GET /cart/{id}/total
+discrepancies: none

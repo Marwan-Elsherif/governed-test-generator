@@ -1,0 +1,80 @@
+{
+  "allowed_write_globs": [
+    "features/db/**"
+  ],
+  "baseline": {
+    "captured_at": "2026-09-10T13:44:51Z",
+    "dirty": [
+      {
+        "path": "runs/.current",
+        "sha256": "63d67e909d4384d9aba57bbf8164dc81aaaba92150734253fe35dd85d533e8f6",
+        "status": "??"
+      },
+      {
+        "path": "runs/.last",
+        "sha256": "63d67e909d4384d9aba57bbf8164dc81aaaba92150734253fe35dd85d533e8f6",
+        "status": "??"
+      },
+      {
+        "path": "runs/2026-09-10T13-44-51Z_TKT-3_2a530a/events.jsonl",
+        "sha256": "dcee8d8338f137af8028a40d90523884464e7051963bec5d6b1c981dc9ce51f7",
+        "status": "??"
+      },
+      {
+        "path": "runs/2026-09-10T13-44-51Z_TKT-3_2a530a/manifest.json",
+        "sha256": "2d3b59b75861ac243f0c8c96771d5a366b42cbb170b77a13c1b31af641594e61",
+        "status": "??"
+      }
+    ],
+    "head": "962c35c7dfcd6c6d6d66461691dff147cbcb3c12"
+  },
+  "classification": {
+    "amendments": [],
+    "declared_at": "2026-09-10T13:44:51Z",
+    "domains": [
+      "db"
+    ],
+    "evidence": [
+      "order_items.quantity currently accepts any integer. It must be a positive integer.",
+      "the migration fails if any existing row would violate the constraint."
+    ],
+    "mentioned_not_in_scope": [],
+    "rationale": "The ticket is entirely about a database column constraint and its migration on order_items; no UI page or API endpoint is referenced."
+  },
+  "conventions_served": [
+    {
+      "domain": "db",
+      "fingerprint": "3d7d6a02",
+      "path": "conventions/db.md",
+      "served_at": "2026-09-10T13:44:51Z",
+      "sha256": "3d7d6a02d6d004f9f05f56d2e5d1bb4e5d3088904537b5fe7b4ddf4b8c3bc75e"
+    }
+  ],
+  "created_at": "2026-09-10T13:44:51Z",
+  "created_by": "cli:declare",
+  "finished_at": "2026-09-10T13:48:50Z",
+  "hooks_active": false,
+  "notes": [],
+  "prompts": [],
+  "run_id": "2026-09-10T13-44-51Z_TKT-3_2a530a",
+  "schema": "gov-run-manifest/1",
+  "session_id": null,
+  "status": "finished",
+  "ticket_id": "TKT-3",
+  "updated_at": "2026-09-10T13:48:50Z",
+  "validations": [
+    {
+      "at": "2026-09-10T13:48:45Z",
+      "domain": "db",
+      "failures": [],
+      "file": "features/db/order_items_order_items_quantity_constraint.feature",
+      "new_objects": [
+        "constraint chk_order_items_quantity_positive",
+        "migration 0004_order_items_quantity_positive"
+      ],
+      "ok": true,
+      "uncovered": [],
+      "warnings": []
+    }
+  ]
+}

@@ -202,6 +202,22 @@ def build(
 
     tool_calls, violations, terminal, direct_reads_denied, leak = _tool_stats(events)
 
+    # A `validate` call accepts an explicit path and will happily validate a
+    # file that was not actually touched during this run (e.g. left over,
+    # unchanged, from an earlier run in the same working tree). That call
+    # records a genuine `ok: true` in the manifest, but `finish` counts only
+    # files changed since *this run's own* baseline as its output, so such a
+    # file never appears in `outputs`. Found empirically: a weak-model
+    # preflight run re-validated an already-passing file from a prior run,
+    # then finished with zero counted output and no explanation for why a
+    # file that had just validated clean didn't count. Surfacing it here so
+    # the audit explains the apparent contradiction instead of just showing
+    # a FAIL verdict next to a passing validation entry.
+    validated_but_not_this_runs_output = sorted({
+        v["file"] for v in manifest.get("validations", [])
+        if v.get("ok") and v.get("file") not in final_files
+    })
+
     # -- verdict ----------------------------------------------------------
     policy_held = not out_of_scope
     all_pass = bool(outputs) and all(o["validation"] == "PASS" for o in outputs)
@@ -214,6 +230,12 @@ def build(
                        + ", ".join(out_of_scope))
     if not outputs:
         reasons.append("no feature file was produced inside the declared scope")
+        if validated_but_not_this_runs_output:
+            reasons.append(
+                "note: " + ", ".join(validated_but_not_this_runs_output)
+                + " validated successfully during this run but is unchanged since this "
+                "run's baseline (already existed before this run started), so it is not "
+                "counted as this run's output; see an earlier run's audit for its record")
     elif not all_pass:
         reasons.append("final validation failed for: "
                        + ", ".join(p for p, s in final_files.items() if s == "FAIL"))

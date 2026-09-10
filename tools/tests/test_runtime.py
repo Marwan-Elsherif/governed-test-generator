@@ -8,6 +8,8 @@ payloads, must produce a schema-valid audit record that contains a
 denied write, a failed-then-passed validation, and a PASS verdict.
 """
 import json
+import subprocess
+import sys
 import tempfile
 from pathlib import Path
 
@@ -147,3 +149,80 @@ def test_simulated_run_produces_a_valid_audit():
         md = (run_dir / "audit.md").read_text()
         assert "Attempted violations" in md
         assert "Cross-check" in md
+
+
+def test_finish_explains_a_validated_file_that_is_not_this_runs_output():
+    """Found via a weak-model preflight run (see docs/PLAN.md and
+    runs/_preflight/): `validate` accepts an explicit path and will
+    validate a file left over, unchanged, from an earlier run in the same
+    working tree, recording a genuine ok:true. `finish` correctly does not
+    count that file as *this* run's output (it counts only files changed
+    since this run's own baseline), so the run's audit used to show a bare
+    FAIL with no explanation for why a file that had just validated clean
+    didn't count. This reproduces the exact sequence against the real CLI
+    and asserts the audit now explains it."""
+    with tempfile.TemporaryDirectory(prefix="gov-audit-note-test-") as tmp:
+        import simulate_run as S
+
+        root = S.make_copy(Path(tmp) / "repo")
+        gov = [sys.executable, str(root / "tools" / "gov.py")]
+
+        def cli(*args):
+            return subprocess.run(gov + list(args), cwd=root, capture_output=True, text=True)
+
+        # Run 1: a genuine, complete, passing run.
+        rel = "features/db/order_items_quantity_constraint.feature"
+        (root / rel.rsplit("/", 1)[0]).mkdir(parents=True, exist_ok=True)
+        header_proc = cli("declare", "--ticket", "TKT-3", "--domains", "db",
+                          "--rationale", "r", "--evidence", "e")
+        assert "fingerprint" in header_proc.stdout
+        import re
+        fp = re.search(r"fingerprint: ([0-9a-f]{8})", header_proc.stdout).group(1)
+        (root / rel).write_text(f"""# gov: ticket=TKT-3 domain=db conventions=db@{fp}
+@db @table-order_items @TKT-3 @migration-0004_order_items_quantity_constraint @spec-pending
+Feature: DB order_items - quantity must be positive
+
+  Background:
+    Given the database schema is at migration "0003_products_price_check"
+
+  @up @rollback @ac-2
+  Scenario: order_items: the up migration adds the check constraint
+    When I apply migration "0004_order_items_quantity_constraint"
+    Then the migration succeeds
+    And a constraint "chk_order_items_quantity_positive" exists on "order_items"
+
+  @rollback @ac-1
+  Scenario: order_items: zero quantity is rejected on insert
+    Given migration "0004_order_items_quantity_constraint" is applied
+    When I insert into "order_items":
+      | id | order_id | product_id | name | quantity | unit_price_cents |
+      | 00000000-0000-4000-8000-000000000001 | 00000000-0000-4000-8000-100000000001 | 00000000-0000-4000-8000-200000000001 | x | 0 | 100 |
+    Then the statement fails with constraint "chk_order_items_quantity_positive"
+
+  @down @rollback @ac-3
+  Scenario: order_items: the down migration removes the constraint
+    Given migration "0004_order_items_quantity_constraint" is applied
+    When I roll back migration "0004_order_items_quantity_constraint"
+    Then the migration succeeds
+    And no constraint "chk_order_items_quantity_positive" exists on "order_items"
+""", encoding="utf-8")
+        assert cli("validate").returncode == 0
+        assert cli("finish").returncode == 0
+
+        # Run 2: same ticket, fresh run, the file is NOT touched again --
+        # but validate is called with an explicit path naming it anyway.
+        cli("declare", "--ticket", "TKT-3", "--domains", "db", "--rationale", "r2", "--evidence", "e2")
+        validate2 = cli("validate", rel)
+        assert "ALL PASS" in validate2.stdout
+        cli("finish")
+
+        run_dirs = sorted(d for d in (root / "runs").iterdir() if d.is_dir())
+        assert len(run_dirs) == 2
+        second_audit = json.loads((run_dirs[1] / "audit.json").read_text())
+
+        assert second_audit["outputs"] == []
+        assert second_audit["verdict"]["status"] == "FAIL"
+        note = next((r for r in second_audit["verdict"]["reasons"] if r.startswith("note:")), None)
+        assert note is not None, second_audit["verdict"]["reasons"]
+        assert rel in note
+        assert "not counted as this run's output" in note

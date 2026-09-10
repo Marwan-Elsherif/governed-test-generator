@@ -1,0 +1,87 @@
+{
+  "allowed_write_globs": [
+    "features/api/**"
+  ],
+  "baseline": {
+    "captured_at": "2026-09-10T14:31:22Z",
+    "dirty": [
+      {
+        "path": "runs/.current",
+        "sha256": "bce30ce6af4f59b664ec4647c6bf8b56a4eb111b237798ec9562936f49204032",
+        "status": "??"
+      },
+      {
+        "path": "runs/.last",
+        "sha256": "bce30ce6af4f59b664ec4647c6bf8b56a4eb111b237798ec9562936f49204032",
+        "status": "??"
+      },
+      {
+        "path": "runs/2026-09-10T14-31-22Z_TKT-2_8dd94d/events.jsonl",
+        "sha256": "ec5a3d096f60d2578ae6e9b901a408ef377e1028c988e969e65a74484896b481",
+        "status": "??"
+      },
+      {
+        "path": "runs/2026-09-10T14-31-22Z_TKT-2_8dd94d/manifest.json",
+        "sha256": "5c25b25f5b390486972d2553ad072d22901ce8ef5cbf81d667fbe227765f345f",
+        "status": "??"
+      }
+    ],
+    "head": "38a9a1e53d0433968d650727a78bf8988ee09245"
+  },
+  "classification": {
+    "amendments": [],
+    "declared_at": "2026-09-10T14:31:38Z",
+    "domains": [
+      "api"
+    ],
+    "evidence": [
+      "Expose GET /cart/{id}/total so the storefront can show totals without fetching the whole cart.",
+      "Returns 404 for an unknown cart id."
+    ],
+    "mentioned_not_in_scope": [],
+    "rationale": "The ticket adds and specifies a REST endpoint contract, including response fields, calculation behavior, and HTTP error statuses."
+  },
+  "conventions_served": [
+    {
+      "domain": "api",
+      "fingerprint": "ae8ca968",
+      "path": "conventions/api.md",
+      "served_at": "2026-09-10T14:31:38Z",
+      "sha256": "ae8ca968b1e7e6669a7244b3c6208e9128aa3d54e4a9d684ae85f00d5a27c895"
+    }
+  ],
+  "created_at": "2026-09-10T14:31:22Z",
+  "created_by": "hook:UserPromptSubmit",
+  "finished_at": "2026-09-10T14:32:06Z",
+  "hooks_active": true,
+  "notes": [
+    "Discovery run (step 9), first live run in VS Code Copilot. Agent's RUN SUMMARY reported 'denied tool calls: 0'; the record shows 1 (tool_search, VS Code's tool-catalogue lookup, denied by the name-based classifier; harmless here, fixed after this run by allowing catalogue lookups). Model as shown in the chat UI to be recorded separately.",
+    "Audit regenerated after finish: the first version of `gov.py annotate` rebuilt it against a working tree that by then contained uncommitted tooling edits, which the scope check reported as out-of-scope changes. Regenerated with the tooling committed, reproducing finish-time conditions; observed facts (tool calls, denials, outputs, git) are unchanged from the original finish."
+  ],
+  "prompts": [
+    {
+      "at": "2026-09-10T14:31:22Z",
+      "text": "/run-ticket TKT-2"
+    }
+  ],
+  "run_id": "2026-09-10T14-31-22Z_TKT-2_8dd94d",
+  "schema": "gov-run-manifest/1",
+  "session_id": "40d2a301-5837-43ba-9d22-570fa7c00e0b",
+  "status": "finished",
+  "ticket_id": "TKT-2",
+  "updated_at": "2026-09-10T14:43:51Z",
+  "validations": [
+    {
+      "at": "2026-09-10T14:32:02Z",
+      "domain": "api",
+      "failures": [],
+      "file": "features/api/cart_total_get.feature",
+      "new_objects": [
+        "GET /cart/{id}/total"
+      ],
+      "ok": true,
+      "uncovered": [],
+      "warnings": []
+    }
+  ]
+}

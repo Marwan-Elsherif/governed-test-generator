@@ -5,7 +5,7 @@ __pycache__/
 .pytest_cache/
 *.egg-info/
 
-# Never commit signing key material (see docs/PLAN.md §2.9).
+# Never commit signing key material (see WRITEUP.md §3 and tools/govlib/integrity.py).
 # The Ed25519 private key must live outside this repo entirely;
 # these patterns are defense in depth only, not the actual control.
 *private_key*

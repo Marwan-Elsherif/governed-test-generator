@@ -27,7 +27,7 @@ A GitHub Copilot (VS Code) setup that turns a ticket into Gherkin `.feature` fil
 | `runs/` | One folder per run. `runs/_preflight/` holds the pre-Copilot preflight (Claude Code, two models) | nothing |
 | `MANIFEST.json` | Signed hash manifest of the governance bundle (distribution bonus) | nothing |
 
-Not shipped: `docs/PLAN.md`, the author's working plan, which a few code comments still cite. `technical_challenge 4.md` is the brief.
+Not shipped: `docs/PLAN.md`, the author's working plan, which a few code comments still cite; `technical_challenge 4.md`, Avenga's assignment brief, kept out of this public repo but still named as a protected, unwritable path in `policy.json` and exercised by path string in the test suite.
 
 ## Prerequisites
 

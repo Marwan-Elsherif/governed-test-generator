@@ -17,6 +17,7 @@
 | hooks active | yes |
 | integrity | not_configured |
 | events recorded | 42 |
+| chat transcript | transcript.raw.jsonl |
 
 ## Classification
 
@@ -83,4 +84,4 @@ Cross-check (each output run against the other domains' rules; must fail):
 - SIGNIFICANT finding: this run read tools/tests/test_validate.py, which was not in read_denied_during_run (only conventions/, runs/, eval/ were). That one file alone contains rule IDs, forbidden-term lists and worked mutation examples for ALL THREE domains regardless of what is declared, and the leak-scan did not catch it either since it only looks for the served-conventions marker text and fingerprint, not general domain content. Checked across every real run's events.jsonl before doing anything else: docs/PLAN.md, which holds the actual expected-domain answers and the deliberately-withheld agent rule, was never read in any run. Nothing reported so far is contaminated. Fixed regardless: read_denied_during_run now also covers tools/**, docs/**, schemas/**, policy.json, MANIFEST.json and the original brief. Reproduced and confirmed the fix denies the exact read that happened here. See tools/tests/test_scope.py.
 - Content observation, not fixed as a rule: the db scenario is tagged @ac-1 @ac-2 @ac-3 @ac-4, but only actually tests AC-1 (the index exists). AC-2 (before/after equivalence), AC-3 (pagination) and AC-4 (response time) are api-only concerns with nothing in this scenario's content relating to them. No functional gap results -- the api file genuinely and correctly covers all four -- but the db scenario over-claims tags it does not deserve. Separately, and part of the same pattern first seen on TKT-4: the api scenario tagged @ac-2 ('the endpoint returns the same results before and after the index is added') only queries the AFTER state; it does not actually compare against a captured BEFORE state, so the comparative claim is not fully proven either. Not encoded as a new rule for the same reason as TKT-4's finding -- no clean, low-false-positive mechanical signal -- but now seen twice, which is worth naming explicitly as a recognised limitation in the write-up: this validator proves tag-level traceability, not that compound or comparative acceptance criteria are fully exercised.
 
-_Raw record: `audit.json`; events: `events.jsonl`; served text: `served/`_
+_Raw record: `audit.json`; events: `events.jsonl`; served text: `served/`; chat transcript: `transcript.raw.jsonl`_

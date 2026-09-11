@@ -1,7 +1,7 @@
 {
   "algorithm": "sha256",
   "bundle": "governed-test-generation",
-  "created_at": "2026-09-11T01:44:02Z",
+  "created_at": "2026-09-11T01:57:18Z",
   "files": {
     ".github/agents/feature-author.agent.md": "f34c8119371360a42700849097b43ae2f37c0299451131115639a9b8f5030071",
     ".github/copilot-instructions.md": "8509c58579fd92a65eb29e9dc0cbf94f09f614a1db192f75dda67f7262995081",
@@ -14,9 +14,9 @@
     "conventions/ui.md": "3f9a4194adc65549b5b3d68fb812c88de1deefc25689f959ff34575c6d23d1fd",
     "policy.json": "91c34e964f9668dec15545e0b28cf7462274bc8389bdcd3d81990de719f51997",
     "schemas/audit.schema.json": "8caf05ddb8ae35aa0f8cabc16b34fee0107116fd0557f0fd8bd9b8ea0c628984",
-    "tools/gov.py": "e8e651c06a048f092878ffe6f63499bc2ca202070f43f01c44623decb3a18ac4",
+    "tools/gov.py": "fabfa31c178bbd1da81b2858150e0210848207fe407cdca21667fadc29544876",
     "tools/govlib/__init__.py": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
-    "tools/govlib/audit.py": "ae550ceba395feb3664ec21778ffdf47fbcfe2bbccf8f8d22c667ffe941bfd23",
+    "tools/govlib/audit.py": "25c948e62c0a51dca11c602a4f33c8db7f0cb16b3c78c1c15b034b1bde0a8cd4",
     "tools/govlib/conventions.py": "a21f50bd9526914f075a04e6af89aeb1406b31383b06f2cb067946e30862bb9e",
     "tools/govlib/gherkin.py": "5c5953bb7b0ffdaf37ae3784e66487bc572c57adb2ed79247520535b0eb16b2d",
     "tools/govlib/gitinfo.py": "e6295a8058c61874264fada47f3c3989e6f83f15f2115e95d6d19a69e21baad4",
@@ -50,8 +50,8 @@
   "signature": {
     "algorithm": "ed25519",
     "public_key": "1736b72f39f76d8ebdc41161f41e088fbb421546a5efdc7630087affaa7daf8e",
-    "signed_at": "2026-09-11T01:44:02Z",
-    "value": "8687385d90c2d6acf0d9c2f7e8f7e75beb3bc757c3506073e308e4eade01ca766ec01e8255b8fd79e94b50c0dce3de3f54a27f950367be3110d6d32afe187b0c"
+    "signed_at": "2026-09-11T01:57:18Z",
+    "value": "08704bda9acbe0cd84de9d6c86c78e558ccbb7e7b9c329f67462226c12f08ace67083e8a352b5e218e4411afb3cd16c822f5f276297518db3fb66fd47457c702"
   },
-  "version": "1.0.1"
+  "version": "1.0.2"
 }

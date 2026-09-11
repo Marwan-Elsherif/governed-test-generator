@@ -2,7 +2,7 @@
   "artifacts": {
     "events": "events.jsonl",
     "served": "served/",
-    "transcript": null
+    "transcript": "transcript.raw.jsonl"
   },
   "classification": {
     "amendments": [],

@@ -241,7 +241,17 @@ class Sim:
         sys.path.insert(0, str(self.root / "tools"))
         from govlib import audit as A  # noqa
         self.expect("audit matches schema", A.check_schema(a, A.load_schema(self.root)), [])
-        self.expect("verdict", a["verdict"]["status"], "PASS")
+        # The verdict depends on whether the bundle's signature can be checked
+        # here: without the optional `cryptography` package the state is
+        # `unsigned`, and audit.build downgrades a clean run to REVIEW, because
+        # hashes alone prove consistency, not provenance. Expect what the
+        # audit rules say for this machine, so the simulator stays honest on
+        # a stdlib-only interpreter instead of failing for a missing extra.
+        from govlib import integrity as I  # noqa
+        state = I.verify(self.root).state
+        expected_verdict = "REVIEW" if state == "unsigned" else "PASS"
+        self.expect(f"verdict (bundle integrity here is '{state}')",
+                    a["verdict"]["status"], expected_verdict)
         self.expect("policy held", a["verdict"]["policy_held"], True)
         self.expect("classification match", a["classification"]["match"], "exact")
         self.expect("conventions served", [s["domain"] for s in a["conventions"]["served"]], ["api"])

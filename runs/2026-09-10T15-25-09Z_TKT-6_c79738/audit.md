@@ -17,6 +17,7 @@
 | hooks active | yes |
 | integrity | not_configured |
 | events recorded | 28 |
+| chat transcript | transcript.raw.jsonl |
 
 ## Classification
 
@@ -71,4 +72,4 @@ Cross-check (each output run against the other domains' rules; must fail):
 - Content gap found by reading the ticket text next to the scenario, not by the validator: acceptance criterion 2 reads 'A subsequent GET /cart/{id} returns 404', but the scenario tagged @ac-2 sends a DELETE request, not a GET. C-06 only checks that the @ac-2 tag is present, which it is, so this file validated ALL PASS with full coverage despite not actually testing AC-2's real behaviour. Added rule API-13 (WARN, conventions/api.md) afterward: cross-checks the HTTP method a criterion's text names against the method the covering scenario actually sends. Deliberately a heuristic (one word compared to one word), not a semantic proof, and WARN rather than FAIL for that reason. This run's frozen outputs/warnings are left exactly as they were at finish time (empty; API-13 did not exist yet) -- re-validating today would show the warning and move the verdict to REVIEW, but the historical record of what was known and true at the time is not rewritten.
 - conventions/api.md's fingerprint changed when API-13 was added (ae8ca968 -> a89c22c3 as of this note). This run's served fingerprint stays ae8ca968, correctly recording what was actually served to the agent; future api runs will be served the updated document.
 
-_Raw record: `audit.json`; events: `events.jsonl`; served text: `served/`_
+_Raw record: `audit.json`; events: `events.jsonl`; served text: `served/`; chat transcript: `transcript.raw.jsonl`_

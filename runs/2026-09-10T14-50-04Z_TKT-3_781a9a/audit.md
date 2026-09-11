@@ -17,6 +17,7 @@
 | hooks active | yes |
 | integrity | not_configured |
 | events recorded | 29 |
+| chat transcript | transcript.raw.jsonl |
 
 ## Classification
 
@@ -68,4 +69,4 @@ Cross-check (each output run against the other domains' rules; must fail):
 - AI credits and model as shown in the chat UI to be recorded once available.
 - Filename order_items_order_items_quantity_constraint.feature repeats the table name -- the same naming quirk Sonnet 5 produced for this ticket in the step 8 preflight (runs/_preflight/sonnet_tkt3/). Not a rule violation (C-01 only requires snake_case); recorded as a recurring, model-independent tell worth a one-line addition to the agent file's step 5 if it keeps happening.
 
-_Raw record: `audit.json`; events: `events.jsonl`; served text: `served/`_
+_Raw record: `audit.json`; events: `events.jsonl`; served text: `served/`; chat transcript: `transcript.raw.jsonl`_

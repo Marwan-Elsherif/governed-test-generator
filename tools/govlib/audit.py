@@ -288,7 +288,7 @@ def build(
         reasons.append("policy held, outputs valid, classification matches the expected domains")
 
     agent_path = repo_root / AGENT_FILE
-    transcript = next((p.name for p in run.root.glob("transcript.*")), None)
+    transcript = transcript_name(run)
     client = _client_info(run)
 
     return {
@@ -402,6 +402,7 @@ def render_markdown(audit: dict) -> str:
     L.append(f"| hooks active | {_yes(g['hooks_active'])} |")
     L.append(f"| integrity | {g['integrity']} |")
     L.append(f"| events recorded | {g['events_recorded']} |")
+    L.append(f"| chat transcript | {audit['artifacts'].get('transcript') or 'not attached'} |")
     L.append("")
 
     L.append("## Classification")
@@ -514,9 +515,18 @@ def render_markdown(audit: dict) -> str:
         for n in audit["notes"]:
             L.append(f"- {n}")
         L.append("")
-    L.append(f"_Raw record: `audit.json`; events: `{audit['artifacts']['events']}`; "
-             f"served text: `{audit['artifacts']['served']}`_")
+    tail = (f"_Raw record: `audit.json`; events: `{audit['artifacts']['events']}`; "
+            f"served text: `{audit['artifacts']['served']}`")
+    if audit["artifacts"].get("transcript"):
+        tail += f"; chat transcript: `{audit['artifacts']['transcript']}`"
+    L.append(tail + "_")
     return "\n".join(L) + "\n"
+
+
+def transcript_name(run) -> str | None:
+    """File name of the chat transcript attached to the run (by the Stop
+    hook, after `finish` has already built the audit), or None."""
+    return next((p.name for p in run.root.glob("transcript.*")), None)
 
 
 def write_index(repo_root: Path) -> Path:

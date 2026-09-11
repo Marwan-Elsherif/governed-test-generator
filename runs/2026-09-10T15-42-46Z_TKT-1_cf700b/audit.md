@@ -17,6 +17,7 @@
 | hooks active | yes |
 | integrity | not_configured |
 | events recorded | 21 |
+| chat transcript | transcript.raw.jsonl |
 
 ## Classification
 
@@ -69,4 +70,4 @@ Cross-check (each output run against the other domains' rules; must fail):
 - Found by reading the output, not by the validator: this run's frozen adds_to_specification lists 'Home & Garden' and 'Kitchen' as new page elements alongside the genuinely new controls (Category filter, Minimum/Maximum price field). Those two are category VALUES named in Then-step prose ('...products in the "Home & Garden" category'), not controls -- the element-extraction regex matched the same the "..." shape purely by coincidence of English wording, since it scanned every step rather than only the When steps where this domain's own grammar (UI-06/UI-07) says a real element reference can appear. It did not cause a false failure (the file was already correctly @spec-pending for the real new controls), only an inaccurate detail in what the audit reports as newly added.
 - Fixed afterward: element extraction (govlib/rules_ui.py, used by UI-08 and target_state) now scans only When steps. Re-validating features/ui/product_search_filters.feature today reports exactly the three real controls under adds_to_specification, nothing else; verdict and outputs on this frozen run are left exactly as they were at finish time, per the same frozen-facts principle used for the earlier findings on TKT-2 and TKT-6.
 
-_Raw record: `audit.json`; events: `events.jsonl`; served text: `served/`_
+_Raw record: `audit.json`; events: `events.jsonl`; served text: `served/`; chat transcript: `transcript.raw.jsonl`_

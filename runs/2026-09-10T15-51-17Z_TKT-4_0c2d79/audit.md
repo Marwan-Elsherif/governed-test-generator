@@ -17,6 +17,7 @@
 | hooks active | yes |
 | integrity | not_configured |
 | events recorded | 38 |
+| chat transcript | transcript.raw.jsonl |
 
 ## Classification
 
@@ -81,4 +82,4 @@ Cross-check (each output run against the other domains' rules; must fail):
 - Content observation, not a rule violation: AC-2 is a compound claim, 'returns 422 and no order is created.' The api scenario tagged @ac-2 asserts only the 422 status and error code; it never independently verifies that no order was actually created (e.g. a follow-up GET /orders showing the count unchanged). Unlike the TKT-6 method mismatch and TKT-1 element-extraction bugs, this was not turned into a new validator rule: recognising 'this criterion claims an absent side effect and the scenario must independently prove that absence' is not a clean, low-false-positive mechanical check the way HTTP-method matching was -- many legitimate test suites treat a correct error status as sufficient proof of non-creation, and a rule flagging every such case would be opinionated rather than a crisp signal. Left as a human-reviewable observation rather than encoded as a check that might be wrong as often as it is right.
 - Also observed, not a problem: the agent read features/api/cart_total_get.feature (TKT-2's real output) as a reference in addition to the exemplar it was pointed to, and read .github/copilot-instructions.md directly. Both correctly allowed (own-domain reads); noted only because it shows the agent using accumulated real output as context once the repo has some history, not just the designated exemplar.
 
-_Raw record: `audit.json`; events: `events.jsonl`; served text: `served/`_
+_Raw record: `audit.json`; events: `events.jsonl`; served text: `served/`; chat transcript: `transcript.raw.jsonl`_

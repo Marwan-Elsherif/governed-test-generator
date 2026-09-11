@@ -17,6 +17,7 @@
 | hooks active | yes |
 | integrity | not_configured |
 | events recorded | 26 |
+| chat transcript | transcript.raw.jsonl |
 
 ## Classification
 
@@ -69,4 +70,4 @@ Cross-check (each output run against the other domains' rules; must fail):
 - Audit regenerated after finish: the first version of `gov.py annotate` rebuilt it against a working tree that by then contained uncommitted tooling edits, which the scope check reported as out-of-scope changes. Regenerated with the tooling committed, reproducing finish-time conditions; observed facts (tool calls, denials, outputs, git) are unchanged from the original finish.
 - AI credits reported by the Copilot UI for this run: 1.1
 
-_Raw record: `audit.json`; events: `events.jsonl`; served text: `served/`_
+_Raw record: `audit.json`; events: `events.jsonl`; served text: `served/`; chat transcript: `transcript.raw.jsonl`_

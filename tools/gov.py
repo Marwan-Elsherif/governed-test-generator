@@ -300,15 +300,27 @@ def _backfill_client_info(run: runstate.Run) -> None:
     an unrelated `annotate` call happened to run later, and TKT-3's did not,
     since nothing had touched it yet. Patching it in here, automatically,
     the moment the transcript lands, means every run's audit ends up
-    complete without anyone having to remember a follow-up command."""
+    complete without anyone having to remember a follow-up command.
+
+    The same ordering left `artifacts.transcript` null in six of the seven
+    live audits while `transcript.raw.jsonl` sat next to them (found while
+    writing the README, which was about to claim every audit points at its
+    transcript). The pointer is patched here for the same reason."""
     audit_path = run.root / "audit.json"
     if not audit_path.exists():
         return
     try:
         record = json.loads(audit_path.read_text(encoding="utf-8"))
+        changed = False
         client = A._client_info(run)
         if client and record.get("session", {}).get("client") != client:
             record["session"]["client"] = client
+            changed = True
+        transcript = A.transcript_name(run)
+        if transcript and record.get("artifacts", {}).get("transcript") != transcript:
+            record.setdefault("artifacts", {})["transcript"] = transcript
+            changed = True
+        if changed:
             audit_path.write_text(json.dumps(record, indent=2, sort_keys=True) + "\n",
                                   encoding="utf-8")
             (run.root / "audit.md").write_text(A.render_markdown(record), encoding="utf-8")

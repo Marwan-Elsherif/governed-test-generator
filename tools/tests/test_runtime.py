@@ -315,6 +315,7 @@ def test_client_info_is_backfilled_when_the_stop_hook_attaches_the_transcript():
         right_after_finish = json.loads((run_dir / "audit.json").read_text())
         assert right_after_finish["session"]["client"] is None, (
             "sanity check: finish genuinely has no transcript yet")
+        assert right_after_finish["artifacts"]["transcript"] is None
 
         # The chat turn ends; VS Code fires Stop with the transcript it has
         # been writing all along, only now available on disk.
@@ -334,3 +335,8 @@ def test_client_info_is_backfilled_when_the_stop_hook_attaches_the_transcript():
         assert after_stop["verdict"] == right_after_finish["verdict"], (
             "backfilling client info must not touch the observed verdict")
         assert "9.9.9" in (run_dir / "audit.md").read_text()
+        # Same ordering, same fix: the record must point at the transcript
+        # that now sits next to it (six of seven live audits said null here).
+        assert after_stop["artifacts"]["transcript"] == "transcript.raw.jsonl"
+        assert (run_dir / "transcript.raw.jsonl").is_file()
+        assert "transcript.raw.jsonl" in (run_dir / "audit.md").read_text()

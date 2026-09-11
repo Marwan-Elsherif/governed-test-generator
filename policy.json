@@ -63,7 +63,7 @@
     "githubRepo"
   ],
   "terminal_allow": [
-    "^(?:cd\\s+\\S+\\s*&&\\s*)?python3?\\s+tools/gov\\.py\\s+(?:declare|load|validate|finish|status|steps)(?:\\s+(?:\"[^\"$`]*\"|'[^']*'|[^\\s\"'`;&|<>$]+))*\\s*$"
+    "^(?:cd\\s+\\S+\\s*&&\\s*)?python3?\\s+tools/gov\\.py\\s+(?:declare|load|validate|finish|status)(?:\\s+(?:\"[^\"$`]*\"|'[^']*'|[^\\s\"'`;&|<>$]+))*\\s*$"
   ],
   "_trusted_public_keys": "Ed25519 public keys (hex) whose signature over MANIFEST.json this repository accepts. Empty means a signature proves internal consistency only, not provenance, and `gov.py verify` reports 'unsigned' rather than 'ok'. Populated by `gov.py seal --trust-this-key` or `gov.py install --trust-key`; those round-trip this file and reformat it, so adding a key by hand keeps the layout below.",
   "trusted_public_keys": [

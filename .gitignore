@@ -16,6 +16,9 @@ signing_key*
 # Internal working plan, not part of the deliverable repo. Kept locally.
 docs/PLAN.md
 
+# Claude Code session state (worktrees used for the preflight); not deliverable.
+.claude/
+
 # Regenerable: python3 tools/simulate_run.py --keep
 runs/_simulation_last/
 runs/.hook_errors.log

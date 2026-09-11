@@ -10,6 +10,8 @@ __pycache__/
 # these patterns are defense in depth only, not the actual control.
 *private_key*
 *.pem
+*.hex
+signing_key*
 
 # Internal working plan, not part of the deliverable repo. Kept locally.
 docs/PLAN.md
@@ -21,3 +23,6 @@ runs/.hook_errors.log
 # Transient run-state pointers, rewritten by every run
 runs/.current
 runs/.last
+
+# Build artifact: regenerate with `python3 tools/gov.py bundle --out dist`
+dist/

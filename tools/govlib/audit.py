@@ -262,7 +262,11 @@ def build(
         reasons.append("final validation failed for: "
                        + ", ".join(p for p, s in final_files.items() if s == "FAIL"))
     if integrity == "tampered":
-        reasons.append("governance bundle integrity check failed")
+        reasons.append("governance bundle integrity check failed: the conventions or tooling "
+                       "on disk are not the ones that were sealed")
+    elif integrity == "unsigned":
+        reasons.append("governance bundle hashes match but the manifest is unsigned or signed "
+                       "by an untrusted key, so it proves consistency, not provenance")
     if match == "unknown":
         reasons.append("no expected classification on file for this ticket; human review")
     elif match not in ("exact", "undeclared"):
@@ -276,7 +280,7 @@ def build(
 
     if not policy_held or not all_pass or integrity == "tampered" or not declared:
         status = "FAIL"
-    elif match != "exact" or warnings:
+    elif match != "exact" or warnings or integrity == "unsigned":
         status = "REVIEW"
     else:
         status = "PASS"

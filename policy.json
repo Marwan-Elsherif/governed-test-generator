@@ -19,23 +19,54 @@
     {"glob": "conventions/db.md", "domain": "db"}
   ],
   "protected": [
-    "conventions/**", ".github/**", ".vscode/**", "tools/**", "schemas/**",
-    "shop/**", "tickets/**", "eval/**", "runs/**", "docs/**",
-    "policy.json", "MANIFEST.json", "README.md", "WRITEUP.md",
-    "pytest.ini", "conftest.py", "requirements-dev.txt", ".gitignore",
+    "conventions/**",
+    ".github/**",
+    ".vscode/**",
+    "tools/**",
+    "schemas/**",
+    "shop/**",
+    "tickets/**",
+    "eval/**",
+    "runs/**",
+    "docs/**",
+    "policy.json",
+    "MANIFEST.json",
+    "README.md",
+    "WRITEUP.md",
+    "pytest.ini",
+    "conftest.py",
+    "requirements-dev.txt",
+    ".gitignore",
     "technical_challenge 4.md"
   ],
   "read_denied_during_run": [
-    "conventions/**", "runs/**", "eval/**",
-    "tools/**", "docs/**", "schemas/**",
-    "policy.json", "MANIFEST.json", "technical_challenge 4.md"
+    "conventions/**",
+    "runs/**",
+    "eval/**",
+    "tools/**",
+    "docs/**",
+    "schemas/**",
+    "policy.json",
+    "MANIFEST.json",
+    "technical_challenge 4.md"
   ],
   "tools_denied_during_run": [
-    "grep_search", "semantic_search", "search_subagent", "execution_subagent",
-    "runSubagent", "run_subagent", "fetch_webpage", "open_simple_browser",
-    "github_repo", "githubRepo"
+    "grep_search",
+    "semantic_search",
+    "search_subagent",
+    "execution_subagent",
+    "runSubagent",
+    "run_subagent",
+    "fetch_webpage",
+    "open_simple_browser",
+    "github_repo",
+    "githubRepo"
   ],
   "terminal_allow": [
     "^(?:cd\\s+\\S+\\s*&&\\s*)?python3?\\s+tools/gov\\.py\\s+(?:declare|load|validate|finish|status|steps)(?:\\s+(?:\"[^\"$`]*\"|'[^']*'|[^\\s\"'`;&|<>$]+))*\\s*$"
+  ],
+  "_trusted_public_keys": "Ed25519 public keys (hex) whose signature over MANIFEST.json this repository accepts. Empty means a signature proves internal consistency only, not provenance, and `gov.py verify` reports 'unsigned' rather than 'ok'. Populated by `gov.py seal --trust-this-key` or `gov.py install --trust-key`; those round-trip this file and reformat it, so adding a key by hand keeps the layout below.",
+  "trusted_public_keys": [
+    "1736b72f39f76d8ebdc41161f41e088fbb421546a5efdc7630087affaa7daf8e"
   ]
 }

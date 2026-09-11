@@ -4,3 +4,8 @@
 # step, and a smaller dependency surface is easier to trust for a
 # governance/integrity tool. See docs/PLAN.md §2.9.
 pytest>=8.0
+
+# Optional: only needed to SIGN a manifest (gov.py keygen/seal) and to
+# verify signatures. gov.py works without it -- hashes are stdlib -- but
+# `verify` then reports "unsigned" rather than "ok". See govlib/integrity.py.
+cryptography>=42.0

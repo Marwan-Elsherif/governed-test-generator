@@ -9,6 +9,8 @@
     python3 tools/gov.py status
     python3 tools/gov.py report
     python3 tools/gov.py new-ticket TKT-7 --title ... --description ... --ac ... [--ac ...]
+    python3 tools/gov.py keygen | seal --version 1.0.0 | verify [--strict]
+    python3 tools/gov.py bundle --out dist | install --bundle F --target DIR | update
 
 Stdlib only. The repository root is the parent of this file's directory,
 so the tool works regardless of the caller's working directory.
@@ -32,7 +34,7 @@ sys.path.insert(0, str(Path(__file__).resolve().parent))
 
 from govlib import audit as A  # noqa: E402
 from govlib import conventions as C  # noqa: E402
-from govlib import gitinfo, hookio, runstate, scope, serve  # noqa: E402
+from govlib import gitinfo, hookio, integrity, runstate, scope, serve  # noqa: E402
 from govlib import validate as V  # noqa: E402
 from govlib.policy import load_policy  # noqa: E402
 from govlib.tickets import (  # noqa: E402
@@ -73,6 +75,14 @@ def expected_for(ticket_id: str):
 
 def _banner(run: runstate.Run | None) -> str:
     current = f"active run {run.id} for {run.ticket_id}" if run else "no active run"
+    try:
+        check = integrity.verify(REPO_ROOT)
+        if check.tampered:
+            current += (f". WARNING: the governance bundle is {check.state} "
+                        f"({check.reasons[0] if check.reasons else 'see gov.py verify'}); "
+                        "`declare` will refuse until it is restored or re-sealed")
+    except Exception:  # never let the banner break a session
+        pass
     return (
         "Governed test generation is active in this repository. To work a ticket, use the "
         "feature-author agent (or /run-ticket TKT-n). During a run: declare the classification "
@@ -321,6 +331,26 @@ def declare(args) -> int:
     except (FileNotFoundError, TicketParseError) as exc:
         return fail(f"cannot read ticket {args.ticket}: {exc}")
 
+    # The bundle is checked before anything is served. A repository whose
+    # conventions have been edited since they were sealed is not one whose
+    # audit record means anything: the file the agent would be handed is no
+    # longer the file that was published, and the fingerprint in the output
+    # would attest to the local edit rather than to the governed rules.
+    check = integrity.verify(REPO_ROOT)
+    if check.tampered:
+        run = runstate.current_run(REPO_ROOT)
+        if run is not None:
+            run.log("integrity_blocked", state=check.state, reasons=list(check.reasons))
+            run.save()
+        print(f"gov: refusing to serve conventions -- governance bundle is {check.state}",
+              file=sys.stderr)
+        for reason in check.reasons:
+            print(f"  - {reason}", file=sys.stderr)
+        print("  Restore the sealed files (git checkout), or re-seal deliberately with "
+              "`python3 tools/gov.py seal --version <v>` if the change is intended.",
+              file=sys.stderr)
+        return 2
+
     run = runstate.current_run(REPO_ROOT)
     if run is None:
         run = runstate.new_run(REPO_ROOT, ticket.id, None, created_by="cli:declare")
@@ -363,6 +393,7 @@ def declare(args) -> int:
         run.log("declare", domains=list(domains), rationale=args.rationale,
                 evidence=list(args.evidence or []), mentioned=list(args.mentioned or []))
     run.manifest["allowed_write_globs"] = list(policy.allowed_write_globs(domains))
+    run.manifest["integrity"] = check.as_dict()
     run.manifest["status"] = "declared"
     run.save()
 
@@ -460,8 +491,10 @@ def finish(run: runstate.Run | None = None, *, finalized_by: str = "cli:finish",
     run.manifest["finished_at"] = runstate.utcnow()
     run.log("finish", finalized_by=finalized_by)
 
+    recorded = (run.manifest.get("integrity") or {}).get("state")
     record = A.build(REPO_ROOT, run, policy, shop, ticket, expected, finalized_by=finalized_by,
-                     model=run.manifest.get("model"))
+                     model=run.manifest.get("model"),
+                     integrity=recorded or integrity.verify(REPO_ROOT).state)
     errors = A.check_schema(record, A.load_schema(REPO_ROOT))
     if errors:
         run.log("audit_schema_errors", errors=errors)
@@ -484,6 +517,84 @@ def finish(run: runstate.Run | None = None, *, finalized_by: str = "cli:finish",
             print(f"  - {r}")
         print(f"Audit: runs/{run.id}/audit.md")
     return 0 if not errors else 1
+
+
+def verify_cmd(args) -> int:
+    result = integrity.verify(REPO_ROOT, strict=args.strict)
+    if args.json:
+        print(json.dumps(result.as_dict(), indent=2, sort_keys=True))
+    else:
+        print(result.summary())
+        for reason in result.reasons:
+            print(f"  - {reason}")
+        for label, items in (("modified", result.modified), ("missing", result.missing),
+                             ("unexpected", result.extra)):
+            for rel in items:
+                print(f"  {label}: {rel}")
+    return 0 if result.state in (integrity.STATE_OK, integrity.STATE_NOT_CONFIGURED,
+                                 integrity.STATE_UNSIGNED) else 1
+
+
+def seal_cmd(args) -> int:
+    key = Path(args.key).expanduser() if args.key else integrity.DEFAULT_KEY_PATH
+    use_key = key if (integrity.SIGNING_AVAILABLE and key.exists() and not args.unsigned) else None
+    if use_key is None and not args.unsigned:
+        print(f"gov: no signing key at {key}; sealing with hashes only. "
+              "Run `gov.py keygen` for a signed manifest.", file=sys.stderr)
+    try:
+        manifest = integrity.seal(REPO_ROOT, args.version, key_path=use_key,
+                                  trust_this_key=args.trust_this_key)
+    except integrity.IntegrityError as exc:
+        return fail(str(exc))
+    signed = "signed" if manifest.get("signature") else "unsigned"
+    print(f"sealed {len(manifest['files'])} file(s) as {manifest['bundle']} "
+          f"{manifest['version']} ({signed}) -> {integrity.MANIFEST_NAME}")
+    return 0
+
+
+def keygen_cmd(args) -> int:
+    key = Path(args.key).expanduser() if args.key else integrity.DEFAULT_KEY_PATH
+    try:
+        public = integrity.generate_key(key)
+    except integrity.IntegrityError as exc:
+        return fail(str(exc))
+    print(f"signing key written to {key} (keep it out of the repository)")
+    print(f"public key: {public}")
+    print("Add it to policy.json's trusted_public_keys, or re-seal with --trust-this-key.")
+    return 0
+
+
+def bundle_cmd(args) -> int:
+    try:
+        out = integrity.make_bundle(REPO_ROOT, Path(args.out))
+    except integrity.IntegrityError as exc:
+        return fail(str(exc))
+    print(f"wrote {out} and {Path(args.out) / 'LATEST.json'}")
+    return 0
+
+
+def install_cmd(args) -> int:
+    try:
+        result = integrity.install(Path(args.bundle), Path(args.target),
+                                   trust_key=args.trust_key,
+                                   allow_untrusted=args.allow_untrusted)
+    except integrity.IntegrityError as exc:
+        return fail(str(exc))
+    print(f"installed into {args.target}: {result.summary()}")
+    return 0 if not result.tampered else 1
+
+
+def update_cmd(args) -> int:
+    try:
+        status = integrity.check_update(REPO_ROOT, Path(args.latest))
+    except integrity.IntegrityError as exc:
+        return fail(str(exc))
+    if status["up_to_date"]:
+        print(f"up to date: {status['local_version']}")
+    else:
+        print(f"update available: {status['local_version']} -> {status['published_version']} "
+              f"({status['artifact']})")
+    return 0
 
 
 def annotate(args) -> int:
@@ -605,6 +716,34 @@ def main(argv: list[str] | None = None) -> int:
     sub.add_parser("status")
     sub.add_parser("report")
 
+    p = sub.add_parser("verify")
+    p.add_argument("--json", action="store_true")
+    p.add_argument("--strict", action="store_true",
+                   help="treat an unsigned or untrusted manifest as tampered (use in CI)")
+
+    p = sub.add_parser("seal")
+    p.add_argument("--version", required=True)
+    p.add_argument("--key")
+    p.add_argument("--unsigned", action="store_true", help="hashes only, no signature")
+    p.add_argument("--trust-this-key", action="store_true",
+                   help="add the signing key to policy.json's trusted_public_keys")
+
+    p = sub.add_parser("keygen")
+    p.add_argument("--key")
+
+    p = sub.add_parser("bundle")
+    p.add_argument("--out", default="dist")
+
+    p = sub.add_parser("install")
+    p.add_argument("--bundle", required=True)
+    p.add_argument("--target", required=True)
+    p.add_argument("--trust-key", help="public key (hex) the bundle must be signed by")
+    p.add_argument("--allow-untrusted", action="store_true")
+
+    p = sub.add_parser("update")
+    p.add_argument("--latest", default="dist/LATEST.json")
+    p.add_argument("--check", action="store_true", help="accepted for readability; always a check")
+
     p = sub.add_parser("annotate")
     p.add_argument("--run", help="run id; defaults to the most recent run")
     p.add_argument("--model", help="model as shown in the chat UI (hooks cannot observe it)")
@@ -635,6 +774,18 @@ def main(argv: list[str] | None = None) -> int:
         return report(args)
     if args.command == "annotate":
         return annotate(args)
+    if args.command == "verify":
+        return verify_cmd(args)
+    if args.command == "seal":
+        return seal_cmd(args)
+    if args.command == "keygen":
+        return keygen_cmd(args)
+    if args.command == "bundle":
+        return bundle_cmd(args)
+    if args.command == "install":
+        return install_cmd(args)
+    if args.command == "update":
+        return update_cmd(args)
     if args.command == "new-ticket":
         return new_ticket(args)
     return 2
